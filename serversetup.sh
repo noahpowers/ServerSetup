@@ -451,11 +451,11 @@ EOF
 
 function httpsc2doneright(){
     echo -n "NOTE:  Traffic profiles should only be added to https communications!"
-    echo -n $'\n'
-    read -p -n "Enter your DNS (A) record for domain [ENTER]: " -r domain
-    echo -n $'\n'
+    echo ""
+    read -p "Enter your DNS (A) record for domain [ENTER]: " -r domain
+    echo ""
     read -p "Enter your common password to be used [ENTER]: " -r password
-    read -p $'\n'
+    echo ""
     cslocation="/root/cobaltstrike/"
     read -e -i "$cslocation" -p "Enter the folder-path to cobaltstrike [ENTER]: " -r cobaltStrike
     cobaltStrike="${cobaltStrike:-$cslocation}"
