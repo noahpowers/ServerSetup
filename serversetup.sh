@@ -456,7 +456,7 @@ function httpsc2doneright(){
     echo ""
     read -p "Enter your common password to be used [ENTER]: " -r password
     echo ""
-    cslocation="/root/cobaltstrike/"
+    cslocation="/root/cobaltstrike"
     read -e -i "$cslocation" -p "Enter the folder-path to cobaltstrike [ENTER]: " -r cobaltStrike
     cobaltStrike="${cobaltStrike:-$cslocation}"
     echo
