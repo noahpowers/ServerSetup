@@ -121,9 +121,13 @@ function reset_firewall() {
 function add_firewall_rule() {
     echo $'\nBefore continuing, make sure you have... \n\ttarget/host file with all your allowed hosts/ranges\n\tport file with all your allowed ports\n'
     read -p "Enter your server IP address: " -r ipaddr
-    read -p "Enter ALLOWED host file [full path] (e.g. /root/hosts.txt): " -r targetsfile
-    read -p "Enter ALLOWED port file [full path] (e.g. /root/ports.txt): " -r portsfile
+    tgtsfile="/root/hosts.txt"
+    prtsfile="/root/ports.txt"
+    read -e -i "$tgtsfile" -p "Enter ALLOWED host file [full path]: " -r targetsfile
+    read -e -i "$prtsfile" -p "Enter ALLOWED port file [full path]: " -r portsfile
     echo $'\n'
+    targetsfile="${targetsfile:-$tgtsfile}"
+    portsfile="${portsfile:-$prtsfile}"
 	for host in $(cat $targetsfile)
         do for portno in $(cat $portsfile)
             do ufw allow proto tcp from $host to $ipaddr port $portno > /dev/null 2>&1
@@ -447,14 +451,14 @@ EOF
 
 function httpsc2doneright(){
     echo -n "NOTE:  Traffic profiles should only be added to https communications!"
-    echo -n "Enter your DNS (A) record for domain [ENTER]: "
-    read domain
-    echo
-    echo -n "Enter your common password to be used [ENTER]: "
-    read password
-    echo
-    echo -n "Enter the folder-path to cobaltstrike (e.g. /root/cobaltstrike/ ) [ENTER]: "
-    read cobaltStrike
+    echo -n $'\n'
+    echo -n "Enter your DNS (A) record for domain [ENTER]: " -r domain
+    echo -n $'\n'
+    echo -n "Enter your common password to be used [ENTER]: " -r password
+    echo -n $'\n'
+    cslocation="/root/cobaltstrike/"
+    read -e -i "$cslocation" -p "Enter the folder-path to cobaltstrike [ENTER]: " -r cobaltStrike
+    cobaltStrike="${cobaltStrike:-$cslocation}"
     echo
 
     domainPkcs="$domain.p12"
