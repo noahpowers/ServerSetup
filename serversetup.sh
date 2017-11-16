@@ -128,6 +128,7 @@ function add_firewall_rule() {
     echo $'\n'
     targetsfile="${targetsfile:-$tgtsfile}"
     portsfile="${portsfile:-$prtsfile}"
+    ufw enable > /dev/null 2>&1
 	for host in $(cat $targetsfile)
         do for portno in $(cat $portsfile)
             do ufw allow proto tcp from $host to $ipaddr port $portno > /dev/null 2>&1
