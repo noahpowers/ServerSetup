@@ -479,7 +479,8 @@ function httpsc2doneright(){
     cd $cobaltStrikeProfilePath
     echo '[Starting] Cloning into amazon.profile for testing.'
     wget https://raw.githubusercontent.com/rsmudge/Malleable-C2-Profiles/master/normal/amazon.profile --no-check-certificate -O amazon.profile
-    echo '[Success] amazon.profile clonned.'
+    wget https://raw.githubusercontent.com/rsmudge/Malleable-C2-Profiles/master/normal/oscp.profile --no-check-certificate -O oscp.profile    
+    echo '[Success] oscp.profile clonned.'
     echo '[Starting] Adding java keystore / password to amazon.profile.'
     echo " " >> amazon.profile
     echo 'https-certificate {' >> amazon.profile
@@ -487,6 +488,14 @@ function httpsc2doneright(){
     echo   set password \"$password\"\; >> amazon.profile
     echo '}' >> amazon.profile
     echo '[Success] amazon.profile updated with HTTPs settings.'
+    echo '[Starting] Adding java keystore / password to oscp.profile.'
+    echo " " >> oscp.profile
+    echo 'https-certificate {' >> oscp.profile
+    echo   set keystore \"$domainStore\"\; >> oscp.profile
+    echo   set password \"$password\"\; >> oscp.profile
+    echo '}' >> oscp.profile
+    echo '[Success] oscp.profile updated with HTTPs settings.'
+
 }
 
 function get_dns_entries() {
