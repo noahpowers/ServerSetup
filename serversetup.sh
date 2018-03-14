@@ -368,8 +368,14 @@ EOF
 }
 
 function always_https() {
-    mkdir -p /var/www/html/ > /dev/null 2>&1
-    echo "test" > /var/www/html/index.html
+    mkdir -p /var/www/html/donate > /dev/null 2>&1
+    mkdir -p /var/www/html/archive > /dev/null 2>&1
+    cd /var/www/html/
+    wget -l 1 -O index.html https://blog.charitywater.org/ > /dev/null 2>&1
+    cd /var/www/html/donate
+    wget -l 1 -O index.html https://blog.charitywater.org/donate > /dev/null 2>&1
+    cd /var/www/html/archive
+    wget -l 1 -O index.html https://blog.charitywater.org/archive > /dev/null 2>&1
     read -p 'What is your URL (www.example.com)?  ' -r webaddr
     a2enmod rewrite
     service apache2 stop > /dev/null
