@@ -35,17 +35,19 @@ http-get {
 }
 http-post {
     set uri "/v4/md/searches/events/";
-    set verb "GET";
     client {
         header "Host" "www.crunchbase.com";
         header "Accept" "application/json, text/plain, */*";
         header "Referer" "https://www.crunchbase.com/search/events";
         header "X-Distil-Ajax" "xqrxbybxtayfbaa";
-        metadata {
+        output {
             base64url;
             parameter "query";
         }
-        parameter "collection_ids" "locations";
+        id {
+            base64url;
+            parameter "collection_ids";
+        }
     }
     server {
         header "Cache-Control" "no-cache, private";
