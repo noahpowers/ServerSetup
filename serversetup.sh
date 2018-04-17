@@ -733,7 +733,6 @@ function smb_share() {
     read -p '[ ] Enter a password: ' -r accountpassword
     credentials="[ + ] ${accountname} password is:  ${accountpassword}"
     share_path="/home/${accountname}/share"
-    echo $share_path
     topline="###########################################################################"
     bottomline=$topline
     echo $'\n';echo $topline
