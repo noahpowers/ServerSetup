@@ -744,6 +744,8 @@ function smb_share() {
     echo "${accountname}:${accountpassword}" | chpasswd > /dev/null 2>&1
     mkdir /home/${accountname}/share > /dev/null 2>&1
     chown -R ${accountname}:${accountname} $share_path
+    echo "[ ] You will be prompted to enter the password you want for the SMB share... "
+    smbpasswd -a $accountname
     cat <<-EOF > /etc/samba/smb.conf
 [global]
    workgroup = WORKGROUP
