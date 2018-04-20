@@ -11,7 +11,7 @@ function debian_initialize() {
     echo "Updating and Installing Dependicies"
     apt-get -qq update > /dev/null 2>&1
     apt-get -qq -y upgrade > /dev/null 2>&1
-    apt-get install -qq -y nmap apache2 curl > /dev/null 2>&1
+    apt-get install -qq -y nmap apache2 curl tcpdump > /dev/null 2>&1
     apt-get install -qq -y procmail dnsutils screen zip ufw > /dev/null 2>&1
     apt-get remove -qq -y exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
     rm -r /var/log/exim4/ > /dev/null 2>&1
@@ -29,7 +29,7 @@ function debian_initialize() {
     net.ipv6.conf.eth1.disable_ipv6 = 1
     net.ipv6.conf.ppp0.disable_ipv6 = 1
     net.ipv6.conf.tun0.disable_ipv6 = 1
-    EOF
+EOF
 
     sysctl -p > /dev/null 2>&1
 
