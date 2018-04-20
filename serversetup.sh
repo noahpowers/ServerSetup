@@ -349,7 +349,7 @@ EOF
     ssl=required
     ssl_cert = </etc/letsencrypt/live/${primary_domain}/fullchain.pem
     ssl_key = </etc/letsencrypt/live/${primary_domain}/privkey.pem
-    EOF
+EOF
 
     read -p "What user would you like to assign to recieve email for root: " -r user_name
     echo "${user_name}: root" >> /etc/aliases
@@ -610,7 +610,6 @@ function setupSSH() {
     HostKey /etc/ssh/ssh_host_rsa_key
     HostKey /etc/ssh/ssh_host_dsa_key
     HostKey /etc/ssh/ssh_host_ecdsa_key
-    #Privilege Separation is turned on for security
     UsePrivilegeSeparation yes
     KeyRegenerationInterval 3600
     ServerKeyBits 1024
