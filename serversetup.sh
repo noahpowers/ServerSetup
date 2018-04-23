@@ -486,8 +486,8 @@ function httpsc2doneright(){
     cd $cobaltStrikeProfilePath
     echo '[Starting] Cloning into amazon.profile for testing.'
     wget https://raw.githubusercontent.com/rsmudge/Malleable-C2-Profiles/master/normal/amazon.profile --no-check-certificate -O amazon.profile
-    wget https://raw.githubusercontent.com/rsmudge/Malleable-C2-Profiles/master/normal/oscp.profile --no-check-certificate -O oscp.profile    
-    echo '[Success] oscp.profile clonned.'
+    wget https://raw.githubusercontent.com/rsmudge/Malleable-C2-Profiles/master/normal/ocsp.profile --no-check-certificate -O ocsp.profile    
+    echo '[Success] ocsp.profile clonned.'
     echo '[Starting] Adding java keystore / password to amazon.profile.'
     echo " " >> amazon.profile
     echo 'https-certificate {' >> amazon.profile
@@ -496,12 +496,12 @@ function httpsc2doneright(){
     echo '}' >> amazon.profile
     echo '[Success] amazon.profile updated with HTTPs settings.'
     echo '[Starting] Adding java keystore / password to oscp.profile.'
-    echo " " >> oscp.profile
-    echo 'https-certificate {' >> oscp.profile
-    echo   set keystore \"$domainStore\"\; >> oscp.profile
-    echo   set password \"$password\"\; >> oscp.profile
-    echo '}' >> oscp.profile
-    echo '[Success] oscp.profile updated with HTTPs settings.'
+    echo " " >> ocsp.profile
+    echo 'https-certificate {' >> ocsp.profile
+    echo   set keystore \"$domainStore\"\; >> ocsp.profile
+    echo   set password \"$password\"\; >> ocsp.profile
+    echo '}' >> ocsp.profile
+    echo '[Success] ocsp.profile updated with HTTPs settings.'
 
 }
 
