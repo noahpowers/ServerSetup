@@ -231,7 +231,7 @@ EOF
     
     
     cat <<-EOF >> /etc/postfix/master.cf
-    submission inet n       -       -       -       -       smtpd
+  submission inet n       -       -       -       -       smtpd
   -o syslog_name=postfix/submission
   -o smtpd_tls_wrappermode=no
   -o smtpd_tls_security_level=encrypt
