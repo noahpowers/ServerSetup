@@ -268,10 +268,10 @@ EOF
 EOF
 
     cat <<-EOF > /etc/opendkim/TrustedHosts
-    127.0.0.1
-    localhost
-    ${primary_domain}
-    ${relay_ip}
+127.0.0.1
+localhost
+${primary_domain}
+${relay_ip}
 EOF
 
     cd "/etc/opendkim/keys/${primary_domain}" || exit
