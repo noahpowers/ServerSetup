@@ -141,7 +141,6 @@ function add_firewall_rule() {
 
 function install_ssl_Cert() {
     echo $'\nPlease be patient as we download any necessary files...'
-#    service apache2 start > /dev/null 2>&1
     ufw disable > /dev/null 2>&1
     service apache2 stop
     apt-get update
