@@ -40,12 +40,12 @@ EOF
     read -p "Enter your hostname[.]FQDN (without brackets):  " -r primary_domain
 
     cat <<-EOF > /etc/hosts
-    127.0.1.1 $primary_hostname $primary_domain
-    127.0.0.1 localhost $primary_domain
+127.0.1.1 $primary_hostname $primary_domain
+127.0.0.1 localhost $primary_domain
 EOF
 
     cat <<-EOF > /etc/hostname
-    $primary_hostname
+$primary_hostname
 EOF
 
     echo "The System will now reboot!"
