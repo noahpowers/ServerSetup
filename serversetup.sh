@@ -143,6 +143,9 @@ function install_ssl_Cert() {
 #    service apache2 start > /dev/null 2>&1
     ufw disable > /dev/null 2>&1
     service apache2 stop
+    echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
+    apt-get update
+    apt-get install -y python-certbot-apache -t stretch-backports
     git clone https://github.com/certbot/certbot.git /opt/letsencrypt > /dev/null 2>&1
 
     cd /opt/letsencrypt
