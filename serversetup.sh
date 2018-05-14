@@ -9,6 +9,7 @@ fi
 
 function debian_initialize() {
     echo "Updating and Installing Dependicies"
+    echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
     apt-get -qq update > /dev/null 2>&1
     apt-get -qq -y upgrade > /dev/null 2>&1
     apt-get install -qq -y nmap apache2 curl tcpdump > /dev/null 2>&1
@@ -143,7 +144,6 @@ function install_ssl_Cert() {
 #    service apache2 start > /dev/null 2>&1
     ufw disable > /dev/null 2>&1
     service apache2 stop
-    echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
     apt-get update
     apt-get install -y python-certbot-apache -t stretch-backports
     git clone https://github.com/certbot/certbot.git /opt/letsencrypt > /dev/null 2>&1
@@ -286,7 +286,7 @@ EOF
 
     cat <<-EOF > /etc/opendmarc.conf
     AuthservID ${primary_domain}
-    PidFile /var/run/opendmarc.pid
+    PidFile /var/run/opendmarc/opendmarc.pid
     RejectFailures false
     Syslog true
     TrustedAuthservIDs ${primary_domain}
