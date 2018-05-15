@@ -11,9 +11,12 @@ function debian_initialize() {
     echo "Updating and Installing Dependicies"
     echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
     apt-get -qq update > /dev/null 2>&1
+    echo "...keep waiting..."
     apt-get -qq -y upgrade > /dev/null 2>&1
+    echo -n "almost there..."
     apt-get install -qq -y nmap apache2 curl tcpdump > /dev/null 2>&1
     apt-get install -qq -y procmail dnsutils screen zip ufw > /dev/null 2>&1
+    echo -n "don't be impatient..."
     apt-get remove -qq -y exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
     rm -r /var/log/exim4/ > /dev/null 2>&1
 
@@ -508,7 +511,7 @@ function httpsc2doneright(){
 }
 
 function get_dns_entries() {
-    extip=$(ifconfig|grep 'Link encap\|inet '|awk '!/Loopback|:127./'|tr -s ' '|grep 'inet'|tr ':' ' '|cut -d" " -f4)
+    extip=$(ifconfig|grep 'Link encap\|inet '|awk '!/Loopback|:127./'|tr -s ' '|grep 'inet'|tr ':' ' '|cut -d" " -f3|grep -E -iv '127\.0\.0\.1')
     domain=$(ls /etc/opendkim/keys/ | head -1)
     fields=$(echo "${domain}" | tr '.' '\n' | wc -l)
     dkimrecord=$(cut -d '"' -f 2 "/etc/opendkim/keys/${domain}/mail.txt" | tr -d "[:space:]")
