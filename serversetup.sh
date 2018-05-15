@@ -141,14 +141,19 @@ function add_firewall_rule() {
     ufw status numbered
 }
 
-
 function install_ssl_Cert() {
-    echo $'\nPlease be patient as we download any necessary files...'
-    ufw disable > /dev/null 2>&1
-    service apache2 stop
-    apt-get update > /dev/null 2>&1
-    apt-get install -y python-certbot-apache -t stretch-backports > /dev/null 2>&1
-    git clone https://github.com/certbot/certbot.git /opt/letsencrypt > /dev/null 2>&1
+    if [ -d "/opt/letsencrypt/" ]
+        then 
+        echo $'\n';echo "[ + ] LetsEncrypt already installed.  "
+        ufw disable > /dev/null 2>&1
+        else 
+        echo $'\nPlease be patient as we download any necessary files...'
+        ufw disable > /dev/null 2>&1
+        service apache2 stop
+        apt-get update > /dev/null 2>&1
+        apt-get install -y python-certbot-apache -t stretch-backports > /dev/null 2>&1
+        git clone https://github.com/certbot/certbot.git /opt/letsencrypt > /dev/null 2>&1
+    fi
 
     cd /opt/letsencrypt
     letsencryptdomains=()
@@ -233,8 +238,7 @@ disable_vrfy_command = yes
 smtp_tls_note_starttls_offer = yes
 always_bcc = mailarchive@${primary_domain}
 EOF
-    
-    
+
     cat <<-EOF >> /etc/postfix/master.cf
 submission inet n       -       -       -       -       smtpd
   -o syslog_name=postfix/submission
