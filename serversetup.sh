@@ -789,6 +789,15 @@ EOF
     service smbd start
 }
 
+cat <<-EOF
+ __                          __      _               
+/ _\ ___ _ ____   _____ _ __/ _\ ___| |_ _   _ _ __  
+\ \ / _ \ '__\ \ / / _ \ '__\ \ / _ \ __| | | | '_ \ 
+_\ \  __/ |   \ V /  __/ |  _\ \  __/ |_| |_| | |_) |
+\__/\___|_|    \_/ \___|_|  \__/\___|\__|\__,_| .__/ 
+                                              |_|  
+EOF
+
 PS3="Server Setup Script - Pick an option: "
 options=("Setup SSH" "Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share")
 select opt in "${options[@]}" "Quit"; do
