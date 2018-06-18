@@ -187,7 +187,7 @@ function install_ssl_Cert() {
 
 function install_postfix_dovecot() {
     echo $'\n[ ] We use the "mailarchive" account to archive sent emails.\n'
-    password=$(openssl rand -base64 20)
+    password=$(openssl rand -hex 10 | base64)
     echo $'###################################################################\n#                                                                 #'
     echo "# [ + ] 'mailarchive' password is:  ${password}  #"
     echo "#                                                                 #"
@@ -661,7 +661,7 @@ EOF
 function sender_account() {
     echo $'\n'
     read -p '[ ] What account will emails come from?  ' -r accountname
-    accountpassword=$(openssl rand -base64 20)
+    accountpassword=$(openssl rand -hex 10 | base64)
     credentials="[ + ] ${accountname} password is:  ${accountpassword}"
     topline="###########################################################################"
     bottomline=$topline
