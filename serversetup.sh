@@ -188,18 +188,19 @@ function install_ssl_Cert() {
 function install_postfix_dovecot() {
     echo $'\n[ ] We use the "mailarchive" account to archive sent emails.\n'
     password=$(openssl rand -hex 10 | base64)
+    adduser mailarchive --quiet --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
+    echo "mailarchive:${password}" | chpasswd > /dev/null 2>&1
+    echo $'\nInstalling Dependicies\n'
+    apt-get install -qq -y dovecot-imapd dovecot-lmtpd
+    apt-get install -qq -y postfix postgrey postfix-policyd-spf-python
+    apt-get install -qq -y opendkim opendkim-tools
+    apt-get install -qq -y opendmarc
+    apt-get install -qq -y mailutils
+    
     echo $'###################################################################\n#                                                                 #'
     echo "# [ + ] 'mailarchive' password is:  ${password}  #"
     echo "#                                                                 #"
     echo $'###################################################################\n'
-    adduser mailarchive --quiet --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
-    echo "mailarchive:${password}" | chpasswd > /dev/null 2>&1
-    echo $'\nInstalling Dependicies\n'
-    apt-get install -qq -y dovecot-imapd dovecot-lmtpd > /dev/null 2>&1
-    apt-get install -qq -y postfix postgrey postfix-policyd-spf-python > /dev/null 2>&1
-    apt-get install -qq -y opendkim opendkim-tools > /dev/null 2>&1
-    apt-get install -qq -y opendmarc > /dev/null 2>&1
-    apt-get install -qq -y mailutils > /dev/null 2>&1
 
     read -p "Enter your mail server's domain (everything after the '@' sign): " -r primary_domain
     echo $'\n'
