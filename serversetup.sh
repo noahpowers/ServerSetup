@@ -197,7 +197,7 @@ function install_postfix_dovecot() {
     apt-get install -qq -y opendmarc
     apt-get install -qq -y mailutils
     
-    echo $'###################################################################\n#                                                                 #'
+    echo $'###################################################################\n'                                                                 #'
     echo "# [ + ] 'mailarchive' password is:  ${password}  #"
     echo "#                                                                 #"
     echo $'###################################################################\n'
