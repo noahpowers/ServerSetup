@@ -195,11 +195,11 @@ function install_postfix_dovecot() {
     adduser mailarchive --quiet --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
     echo "mailarchive:${password}" | chpasswd > /dev/null 2>&1
     echo $'\nInstalling Dependicies\n'
-    apt-get install -qq -y dovecot-imapd dovecot-lmtpd
-    apt-get install -qq -y postfix postgrey postfix-policyd-spf-python
-    apt-get install -qq -y opendkim opendkim-tools
-    apt-get install -qq -y opendmarc
-    apt-get install -qq -y mailutils
+    apt-get install -qq -y dovecot-imapd dovecot-lmtpd > /dev/null 2>&1
+    apt-get install -qq -y postfix postgrey postfix-policyd-spf-python > /dev/null 2>&1
+    apt-get install -qq -y opendkim opendkim-tools > /dev/null 2>&1
+    apt-get install -qq -y opendmarc > /dev/null 2>&1
+    apt-get install -qq -y mailutils > /dev/null 2>&1
 
     read -p "Enter your mail server's domain (everything after the '@' sign): " -r primary_domain
     echo $'\n'
@@ -360,9 +360,9 @@ EOF
     ssl_key = </etc/letsencrypt/live/${primary_domain}/privkey.pem
 EOF
 
-    read -p "What user would you like to assign to recieve email for root: " -r user_name
-    echo "${user_name}: root" >> /etc/aliases
-    echo "root email assigned to ${user_name}"
+#    read -p "What user would you like to assign to recieve email for root: " -r user_name
+#    echo "${user_name}: root" >> /etc/aliases
+#    echo "root email assigned to ${user_name}"
 
     echo "Restarting Services"
     service postfix restart
