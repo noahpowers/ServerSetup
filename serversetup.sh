@@ -311,58 +311,64 @@ EOF
     echo "Configuring Dovecot"
 
     cat <<-EOF > /etc/dovecot/dovecot.conf
-    log_path = /var/log/dovecot.log
-    auth_verbose=yes
-    auth_debug=yes
-    auth_debug_passwords=yes
-    mail_debug=yes
-    verbose_ssl=yes
-    disable_plaintext_auth = no
-    mail_privileged_group = mail
-    mail_location = mbox:~/mail:INBOX=/var/mail/%u
+log_path = /var/log/dovecot.log
+auth_verbose=yes
+auth_debug=yes
+auth_debug_passwords=yes
+mail_debug=yes
+verbose_ssl=yes
+disable_plaintext_auth = no
+mail_privileged_group = mail
+mail_location = mbox:~/mail:INBOX=/var/mail/%u
 
-    userdb {
-      driver = passwd
-    }
+userdb {
+  driver = passwd
+}
 
-    passdb {
-      args = %s
-      driver = pam
-    }
+passdb {
+  args = %s
+  driver = pam
+}
 
-    protocols = " imap"
+protocols = " imap"
 
-    protocol imap {
-      mail_plugins = " autocreate"
-    }
+protocol imap {
+  mail_plugins = " autocreate"
+}
 
-    plugin {
-      autocreate = Trash
-      autocreate2 = Sent
-      autosubscribe = Trash
-      autosubscribe2 = Sent
-    }
+plugin {
+  autocreate = Trash
+  autocreate2 = Sent
+  autosubscribe = Trash
+  autosubscribe2 = Sent
+}
 
-    service imap-login {
-      inet_listener imap {
-        port = 0
-      }
-      inet_listener imaps {
-        port = 993
-      }
-    }
+service imap-login {
+  inet_listener imap {
+    port = 0
+  }
+  inet_listener imaps {
+    port = 993
+  }
+}
 
-    service auth {
-      unix_listener /var/spool/postfix/private/auth {
-        group = postfix
-        mode = 0660
-        user = postfix
-      }
-    }
+service auth {
+  unix_listener /var/spool/postfix/private/auth {
+    group = postfix
+    mode = 0660
+    user = postfix
+  }
+}
 
-    ssl=required
-    ssl_cert = </etc/letsencrypt/live/${primary_domain}/fullchain.pem
-    ssl_key = </etc/letsencrypt/live/${primary_domain}/privkey.pem
+ssl=required
+ssl_cert = </etc/letsencrypt/live/${primary_domain}/fullchain.pem
+ssl_key = </etc/letsencrypt/live/${primary_domain}/privkey.pem
+EOF
+
+cat <<-EOF > /etc/pam.d/imap
+#%PAM-1.0
+auth    required        pam_unix.so nullok
+account required        pam_unix.so
 EOF
 
 #    read -p "What user would you like to assign to recieve email for root: " -r user_name
