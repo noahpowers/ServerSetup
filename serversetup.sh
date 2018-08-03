@@ -186,20 +186,18 @@ function install_ssl_Cert() {
 }
 
 function install_postfix_dovecot() {
-    echo $'\n[ ] We use the "mailarchive" account to archive sent emails.\n'
     password=$(openssl rand -hex 10 | base64)
     adduser mailarchive --quiet --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
     echo "mailarchive:${password}" | chpasswd > /dev/null 2>&1
     echo $'\nInstalling Dependicies\n'
-    apt-get install -qq -y dovecot-imapd dovecot-lmtpd
+    apt-get install -qq -y dovecot-common dovecot-imapd dovecot-lmtpd
     apt-get install -qq -y postfix postgrey postfix-policyd-spf-python
     apt-get install -qq -y opendkim opendkim-tools
     apt-get install -qq -y opendmarc
     apt-get install -qq -y mailutils
-    
-    echo $'###################################################################\n'                                                                 #'
+    echo $'\n[ ] We use the "mailarchive" account to archive sent emails.\n'
+    echo $'###################################################################'                                                                 #'
     echo "# [ + ] 'mailarchive' password is:  ${password}  #"
-    echo "#                                                                 #"
     echo $'###################################################################\n'
 
     read -p "Enter your mail server's domain (everything after the '@' sign): " -r primary_domain
@@ -313,6 +311,12 @@ EOF
     echo "Configuring Dovecot"
 
     cat <<-EOF > /etc/dovecot/dovecot.conf
+    log_path = /var/log/dovecot.log
+    auth_verbose=yes
+    auth_debug=yes
+    auth_debug_passwords=yes
+    mail_debug=yes
+    verbose_ssl=yes
     disable_plaintext_auth = no
     mail_privileged_group = mail
     mail_location = mbox:~/mail:INBOX=/var/mail/%u
