@@ -290,16 +290,16 @@ EOF
     echo "Configuring opendmarc"
 
     cat <<-EOF > /etc/opendmarc.conf
-    AuthservID ${primary_domain}
-    PidFile /var/run/opendmarc/opendmarc.pid
-    RejectFailures false
-    Syslog true
-    TrustedAuthservIDs ${primary_domain}
-    Socket  inet:54321@localhost
-    UMask 0002
-    UserID opendmarc:opendmarc
-    IgnoreHosts /etc/opendmarc/ignore.hosts
-    HistoryFile /var/run/opendmarc/opendmarc.dat
+AuthservID ${primary_domain}
+PidFile /var/run/opendmarc/opendmarc.pid
+RejectFailures false
+Syslog true
+TrustedAuthservIDs ${primary_domain}
+Socket  inet:54321@localhost
+UMask 0002
+UserID opendmarc:opendmarc
+IgnoreHosts /etc/opendmarc/ignore.hosts
+HistoryFile /var/run/opendmarc/opendmarc.dat
 EOF
 
     mkdir "/etc/opendmarc/"
