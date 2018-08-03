@@ -365,10 +365,23 @@ ssl_cert = </etc/letsencrypt/live/${primary_domain}/fullchain.pem
 ssl_key = </etc/letsencrypt/live/${primary_domain}/privkey.pem
 EOF
 
-cat <<-EOF > /etc/pam.d/imap
+    cat <<-EOF > /etc/pam.d/imap
 #%PAM-1.0
 auth    required        pam_unix.so nullok
 account required        pam_unix.so
+EOF
+
+    cat <<-EOF > /etc/logrotate.d/dovecot
+# dovecot SIGUSR1: Re-opens the log files.
+/var/log/dovecot*.log {
+  missingok
+  notifempty
+  delaycompress
+  sharedscripts
+  postrotate
+    /bin/kill -USR1 `cat /var/run/dovecot/master.pid 2>/dev/null` 2> /dev/null || true
+  endscript
+}
 EOF
 
 #    read -p "What user would you like to assign to recieve email for root: " -r user_name
