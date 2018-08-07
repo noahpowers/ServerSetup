@@ -453,6 +453,7 @@ EOF
         ErrorLog \${APACHE_LOG_DIR}/error.log
         CustomLog \${APACHE_LOG_DIR}/access.log combined
         SSLEngine on
+        SSLProtocol All -SSLv2 -SSLv3
         SSLCertificateFile /etc/letsencrypt/live/${webaddr}/cert.pem
         SSLCertificateKeyFile /etc/letsencrypt/live/${webaddr}/privkey.pem
         SSLCertificateChainFile /etc/letsencrypt/live/${webaddr}/chain.pem
