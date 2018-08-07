@@ -214,6 +214,7 @@ smtpd_tls_cert_file=/etc/letsencrypt/live/${primary_domain}/fullchain.pem
 smtpd_tls_key_file=/etc/letsencrypt/live/${primary_domain}/privkey.pem
 smtpd_tls_security_level = may
 smtp_tls_security_level = may
+smtpd_tls_protocols = !SSLv2, !SSLv3
 smtpd_tls_session_cache_database = btree:\${data_directory}/smtpd_scache
 smtp_tls_session_cache_database = btree:\${data_directory}/smtp_scache
 smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
