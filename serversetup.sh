@@ -799,14 +799,14 @@ function smb_share() {
    pam password change = yes
    map to guest = bad user
    usershare allow guests = yes
-[homes]
-   comment = Home Directories
-   browseable = no
-   read only = yes
-   create mask = 0700
-   directory mask = 0700
-   valid users = %S
-   guest ok = no
+#[homes]
+#   comment = Home Directories
+#   browseable = no
+#   read only = yes
+#   create mask = 0700
+#   directory mask = 0700
+#   valid users = %S
+#   guest ok = no
 [share]
    comment = share
    path = ${share_path}
