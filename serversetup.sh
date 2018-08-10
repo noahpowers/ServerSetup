@@ -541,7 +541,8 @@ function httpsc2doneright(){
 }
 
 function get_dns_entries() {
-    extip=$(ifconfig|grep 'Link encap\|inet '|awk '!/Loopback|:127./'|tr -s ' '|grep 'inet'|tr ':' ' '|cut -d" " -f3|grep -E -iv '127\.0\.0\.1')
+#    extip=$(ifconfig|grep 'Link encap\|inet '|awk '!/Loopback|:127./'|tr -s ' '|grep 'inet'|tr ':' ' '|cut -d" " -f3|grep -E -iv '127\.0\.0\.1')
+    extip=$(ip a |grep -E -iv '\slo|forever|eth0:1' | grep "inet" |cut -d" " -f6 |cut -d"/" -f1)
     domain=$(ls /etc/opendkim/keys/ | head -1)
     fields=$(echo "${domain}" | tr '.' '\n' | wc -l)
     dkimrecord=$(cut -d '"' -f 2 "/etc/opendkim/keys/${domain}/mail.txt" | tr -d "[:space:]")
