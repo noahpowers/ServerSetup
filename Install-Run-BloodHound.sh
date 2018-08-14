@@ -20,7 +20,6 @@ rm -rf /root/tools/Bloodhound/BloodHoundExampleDB.graphdb/data/dbms/auth
 rm -rf /var/lib/neo4j/data/dbms/auth
 rm -rf /var/lib/neo4j/data/databases/BloodHoundExampleDB.graphdb/data/dbms/auth
 
-originalDir=$(pwd)
 cd /usr/bin
 read -p "Password you want:  " -r pass
 neo4j-admin set-initial-password $pass
