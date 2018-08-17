@@ -27,8 +27,10 @@ screen -S neo4j -d -m neo4j console
 sleep 5
 
 ### Launch new Bloodhound
+apt-get install libgconf-2-4
+echo ""
 echo "When BLANK WHITE SCREEN for BloodHound displays..."
 echo "...just click CONTROL+R"
+echo ""
 sleep 7
-cd /opt/BloodHound-linux-x64/
-./Bloodhound
+cd /opt/BloodHound-linux-x64/ && ./Bloodhound
