@@ -33,4 +33,4 @@ echo "When BLANK WHITE SCREEN for BloodHound displays..."
 echo "...just click CONTROL+R"
 echo ""
 sleep 7
-/opt/BloodHound-linux-x64/Bloodhound
+/opt/BloodHound-linux-x64/BloodHound
