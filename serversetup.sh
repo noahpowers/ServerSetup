@@ -827,7 +827,7 @@ function webmail_install() {
     mkdir -p /var/www/webmail
     cd /var/www/webmail/
 
-    echo -n "NOTE:  YOU NEED TO HAVE SSL CERTS GENERATED FIRST!"
+    echo $'\n\tNOTE:  YOU NEED TO HAVE SSL CERTS GENERATED FIRST\n'
     echo ""
     read -p "Enter your mailing domain [ENTER]: " -r DOMAIN
 
