@@ -823,6 +823,12 @@ EOF
 function webmail_install() {
     service apache2 stop
     apt install apache2 php7.0 libapache2-mod-php7.0 php7.0-curl php7.0-xml -y -qq
+    
+    cd /etc/apache2/sites-enabled/
+    a2dissite 000-default > /dev/null 2>&1
+    a2dissite default-ssl > /dev/null 2>&1
+    a2dissite 000-default.conf > /dev/null 2>&1
+    a2dissite default-ssl.conf > /dev/null 2>&1
 
     mkdir -p /var/www/webmail
     cd /var/www/webmail/
