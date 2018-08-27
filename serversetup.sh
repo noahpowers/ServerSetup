@@ -883,7 +883,7 @@ EOF
 
     echo $'\n\nACCESS Instructions:\t\n'
     echo -n $'\n\t'
-    echo "https://${DOMAIN}:8443/\?admin";echo $'\n\tusername:\tadmin\n\tpassword:\t12345\n\n\tCHANGE PASSWORD AFTER LOGGING IN!'
+    echo "https://${DOMAIN}:8443/?admin";echo $'\n\tusername:\tadmin\n\tpassword:\t12345\n\n\tCHANGE PASSWORD AFTER LOGGING IN!'
 }
 
 cat <<-EOF
