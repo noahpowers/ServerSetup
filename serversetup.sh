@@ -54,8 +54,8 @@ EOF
 
     echo "The System will now reboot!"
     printf 'y\n' | ufw allow from $extIP to any > /dev/null 2>&1
-    update-rc.d ufw enable > /dev/null 2>&1
-    ufw enable > /dev/null 2>&1
+    update-rc.d ufw enable
+    ufw enable
     reboot
 }
 
@@ -136,7 +136,7 @@ function add_firewall_rule() {
     echo $'\n'
     targetsfile="${targetsfile:-$tgtsfile}"
     portsfile="${portsfile:-$prtsfile}"
-    ufw enable > /dev/null 2>&1
+    ufw enable
     for host in $(cat $targetsfile)
         do for portno in $(cat $portsfile)
             do ufw allow proto tcp from $host to $ipaddr port $portno > /dev/null 2>&1
@@ -149,7 +149,7 @@ function install_ssl_Cert() {
     if [ -d "/opt/letsencrypt/" ]
         then 
         echo $'\n';echo "[ + ] LetsEncrypt already installed.  "
-        ufw enable > /dev/null 2>&1
+        ufw enable
         ufw allow 80/tcp > /dev/null 2>&1
         ufw allow 443/tcp > /dev/null 2>&1
         else 
@@ -185,11 +185,11 @@ function install_ssl_Cert() {
         done
     command="$command -n --register-unsafely-without-email --agree-tos"
     eval $command
-    ufw enable > /dev/null 2>&1
+    ufw enable
 }
 
 function install_postfix_dovecot() {
-    update-rc.d ufw enable > /dev/null 2>&1
+    update-rc.d ufw enable
     ufw allow 587/tcp > /dev/null 2>&1
     ufw allow 993/tcp > /dev/null 2>&1
     ufw allow 25/tcp > /dev/null 2>&1
@@ -407,7 +407,7 @@ EOF
     service opendkim status
     service opendmarc status
     service dovecot status
-    ufw enable > /dev/null 2>&1
+    ufw enable
 }
 
 function always_https() {
