@@ -151,7 +151,7 @@ function install_ssl_Cert() {
     if [ -d "/opt/letsencrypt/" ]
         then 
         echo $'\n';echo "[ + ] LetsEncrypt already installed.  "
-        ufw enable
+        printf 'y\n' | ufw enable
         ufw allow 80/tcp > /dev/null 2>&1
         ufw allow 443/tcp > /dev/null 2>&1
         else 
@@ -187,11 +187,11 @@ function install_ssl_Cert() {
         done
     command="$command -n --register-unsafely-without-email --agree-tos"
     eval $command
-    ufw enable
+    printf 'y\n' | ufw enable
 }
 
 function install_postfix_dovecot() {
-    update-rc.d ufw enable
+    printf 'y\n' | ufw enable
     ufw allow 587/tcp > /dev/null 2>&1
     ufw allow 993/tcp > /dev/null 2>&1
     ufw allow 25/tcp > /dev/null 2>&1
@@ -409,7 +409,7 @@ EOF
     service opendkim status
     service opendmarc status
     service dovecot status
-    ufw enable
+    printf 'y\n' | ufw enable
 }
 
 function always_https() {
@@ -500,6 +500,7 @@ EOF
     if [ $(lsof -nPi | grep -i apache | grep -c ":443 (LISTEN)") -ge 1 ]; 
         then echo '[+] Apache2 SSL is running!'
     fi
+    printf 'y\n' | ufw enable
 }
 
 function httpsc2doneright(){
@@ -707,7 +708,7 @@ function sender_account() {
     echo $bottomline;echo $'\n'
     adduser ${accountname} --quiet --force-badname --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
     echo "${accountname}:${accountpassword}" | chpasswd > /dev/null 2>&1
-    ufw enable > /dev/null 2>&1
+    printf 'y\n' | ufw enable > /dev/null 2>&1
 }
 
 function check_dkim() {
@@ -727,7 +728,7 @@ function check_dkim() {
             (( count++ ))
         fi
     done
-    ufw enable > /dev/null 2>&1
+    printf 'y\n' | ufw enable > /dev/null 2>&1
 }
 
 function check_arecord() {
@@ -747,7 +748,7 @@ function check_arecord() {
             (( count++ ))
         fi
     done
-    ufw enable > /dev/null 2>&1
+    printf 'y\n' | ufw enable > /dev/null 2>&1
 }
 
 function hta_create() {
@@ -774,7 +775,7 @@ function hta_create() {
     self.close
 </script>
 EOF
-    ufw enable > /dev/null 2>&1
+    printf 'y\n' | ufw enable > /dev/null 2>&1
 }
 
 function smb_share() {
