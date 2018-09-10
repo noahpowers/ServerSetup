@@ -134,7 +134,7 @@ function add_firewall_rule() {
     echo $'\n'
     targetsfile="${targetsfile:-$tgtsfile}"
     portsfile="${portsfile:-$prtsfile}"
-    ufw enable
+    ufw enable > /dev/null 2>&1
     for host in $(cat $targetsfile)
         do for portno in $(cat $portsfile)
             do ufw allow proto tcp from $host to $ipaddr port $portno > /dev/null 2>&1
@@ -182,13 +182,15 @@ function install_ssl_Cert() {
             command="$command -d $i"
         done
     command="$command -n --register-unsafely-without-email --agree-tos"
-    ufw disable
     eval $command
-    ufw enable
+    ufw enable > /dev/null 2>&1
 }
 
 function install_postfix_dovecot() {
-    update-rc.d ufw enable
+    update-rc.d ufw enable > /dev/null 2>&1
+    ufw allow 587/tcp > /dev/null 2>&1
+    ufw allow 993/tcp > /dev/null 2>&1
+    ufw allow 25/tcp > /dev/null 2>&1
     password=$(openssl rand -hex 10 | base64)
     adduser mailarchive --quiet --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
     echo "mailarchive:${password}" | chpasswd > /dev/null 2>&1
@@ -403,7 +405,7 @@ EOF
     service opendkim status
     service opendmarc status
     service dovecot status
-    ufw enable
+    ufw enable > /dev/null 2>&1
 }
 
 function always_https() {
@@ -701,6 +703,7 @@ function sender_account() {
     echo $bottomline;echo $'\n'
     adduser ${accountname} --quiet --force-badname --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
     echo "${accountname}:${accountpassword}" | chpasswd > /dev/null 2>&1
+    ufw enable > /dev/null 2>&1
 }
 
 function check_dkim() {
@@ -720,6 +723,7 @@ function check_dkim() {
             (( count++ ))
         fi
     done
+    ufw enable > /dev/null 2>&1
 }
 
 function check_arecord() {
@@ -739,6 +743,7 @@ function check_arecord() {
             (( count++ ))
         fi
     done
+    ufw enable > /dev/null 2>&1
 }
 
 function hta_create() {
@@ -765,6 +770,7 @@ function hta_create() {
     self.close
 </script>
 EOF
+    ufw enable > /dev/null 2>&1
 }
 
 function smb_share() {
@@ -883,7 +889,7 @@ EOF
     cd /etc/apache2/sites-available/
     a2ensite webmail-ssl.conf
     chown -R www-data:www-data /var/www/
-    service apache2 start
+    service apache2 start > /dev/null 2>&1
 
     echo $'\n\nACCESS Instructions:\t\n'
     echo -n $'\n\t'
