@@ -147,7 +147,9 @@ function install_ssl_Cert() {
     if [ -d "/opt/letsencrypt/" ]
         then 
         echo $'\n';echo "[ + ] LetsEncrypt already installed.  "
-        ufw disable > /dev/null 2>&1
+        ufw enable > /dev/null 2>&1
+        ufw allow 80/tcp > /dev/null 2>&1
+        ufw allow 443/tcp > /dev/null 2>&1
         else 
         echo $'\nPlease be patient as we download any necessary files...'
         service apache2 stop
@@ -183,7 +185,6 @@ function install_ssl_Cert() {
     ufw disable
     eval $command
     ufw enable
-
 }
 
 function install_postfix_dovecot() {
