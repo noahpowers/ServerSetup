@@ -53,9 +53,11 @@ $primary_hostname
 EOF
 
     echo "The System will now reboot!"
-    printf 'y\n' | ufw allow from $extIP to any > /dev/null 2>&1
+    ufw allow from $extIP to any > /dev/null 2>&1
+    ufw allow 80/tcp > /dev/null 2>&1
+    ufw allow 443/tcp > /dev/null 2>&1
     update-rc.d ufw enable
-    ufw enable
+    printf 'y\n' | ufw enable
     reboot
 }
 
