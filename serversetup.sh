@@ -895,6 +895,7 @@ EOF
     a2ensite webmail-ssl.conf
     chown -R www-data:www-data /var/www/
     service apache2 start > /dev/null 2>&1
+    service apache2 force-reload
 
     echo $'\n\nACCESS Instructions:\t\n'
     echo -n $'\n\t'
