@@ -52,6 +52,8 @@ $primary_hostname
 EOF
 
     echo "The System will now reboot!"
+    update-rc.d ufw enable > /dev/null 2>&1
+    ufw enable > /dev/null 2>&1
     reboot
 }
 
@@ -74,8 +76,8 @@ function reset_firewall() {
     -A OUTPUT -p icmp -j ACCEPT
 
     # Allow SSH.
-    -A INPUT -i  eth0 -p tcp -m state --state NEW,ESTABLISHED --dport 22 -j ACCEPT
-    -A OUTPUT -o eth0 -p tcp -m state --state NEW,ESTABLISHED --sport 22 -j ACCEPT
+#    -A INPUT -i  eth0 -p tcp -m state --state NEW,ESTABLISHED --dport 22 -j ACCEPT
+#    -A OUTPUT -o eth0 -p tcp -m state --state NEW,ESTABLISHED --sport 22 -j ACCEPT
 
     # Allow DNS resolution and limited HTTP/S on eth0.
     # Necessary for updating the server and keeping time.
