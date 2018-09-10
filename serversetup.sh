@@ -132,7 +132,7 @@ function add_firewall_rule() {
     echo $'\n'
     targetsfile="${targetsfile:-$tgtsfile}"
     portsfile="${portsfile:-$prtsfile}"
-    ufw enable > /dev/null 2>&1
+    ufw enable
     for host in $(cat $targetsfile)
         do for portno in $(cat $portsfile)
             do ufw allow proto tcp from $host to $ipaddr port $portno > /dev/null 2>&1
@@ -148,7 +148,6 @@ function install_ssl_Cert() {
         ufw disable > /dev/null 2>&1
         else 
         echo $'\nPlease be patient as we download any necessary files...'
-        ufw disable > /dev/null 2>&1
         service apache2 stop
         apt-get update > /dev/null 2>&1
         apt-get install -y python-certbot-apache -t stretch-backports > /dev/null 2>&1
@@ -179,13 +178,14 @@ function install_ssl_Cert() {
             command="$command -d $i"
         done
     command="$command -n --register-unsafely-without-email --agree-tos"
-    
+    ufw disable
     eval $command
-    ufw enable > /dev/null 2>&1
+    ufw enable
 
 }
 
 function install_postfix_dovecot() {
+    update-rc.d ufw enable
     password=$(openssl rand -hex 10 | base64)
     adduser mailarchive --quiet --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
     echo "mailarchive:${password}" | chpasswd > /dev/null 2>&1
@@ -400,6 +400,7 @@ EOF
     service opendkim status
     service opendmarc status
     service dovecot status
+    ufw enable
 }
 
 function always_https() {
