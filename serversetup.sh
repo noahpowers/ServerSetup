@@ -41,6 +41,7 @@ EOF
 
     read -p "Enter your hostname (NOT FQDN): " -r primary_hostname
     read -p "Enter your hostname[.]FQDN (without brackets):  " -r primary_domain
+    read -p "Enter your External IP Address (or range):  " -r extIP
 
     cat <<-EOF > /etc/hosts
 127.0.1.1 $primary_hostname $primary_domain
@@ -52,6 +53,7 @@ $primary_hostname
 EOF
 
     echo "The System will now reboot!"
+    printf 'y\n' | ufw allow from $extIP to any > /dev/null 2>&1
     update-rc.d ufw enable > /dev/null 2>&1
     ufw enable > /dev/null 2>&1
     reboot
