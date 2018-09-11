@@ -56,8 +56,8 @@ EOF
     ufw allow from $extIP to any > /dev/null 2>&1
     ufw allow 80/tcp > /dev/null 2>&1
     ufw allow 443/tcp > /dev/null 2>&1
-    update-rc.d ufw enable
-    printf 'y\n' | ufw enable
+    update-rc.d ufw enable > /dev/null 2>&1
+    printf 'y\n' | ufw enable > /dev/null 2>&1
     reboot
 }
 
@@ -138,7 +138,7 @@ function add_firewall_rule() {
     echo $'\n'
     targetsfile="${targetsfile:-$tgtsfile}"
     portsfile="${portsfile:-$prtsfile}"
-    ufw enable
+    printf 'y\n' | ufw enable > /dev/null 2>&1
     for host in $(cat $targetsfile)
         do for portno in $(cat $portsfile)
             do ufw allow proto tcp from $host to $ipaddr port $portno > /dev/null 2>&1
@@ -151,7 +151,7 @@ function install_ssl_Cert() {
     if [ -d "/opt/letsencrypt/" ]
         then 
         echo $'\n';echo "[ + ] LetsEncrypt already installed.  "
-        printf 'y\n' | ufw enable
+        printf 'y\n' | ufw enable > /dev/null 2>&1
         ufw allow 80/tcp > /dev/null 2>&1
         ufw allow 443/tcp > /dev/null 2>&1
         else 
@@ -187,11 +187,11 @@ function install_ssl_Cert() {
         done
     command="$command -n --register-unsafely-without-email --agree-tos"
     eval $command
-    printf 'y\n' | ufw enable
+    printf 'y\n' | ufw enable > /dev/null 2>&1
 }
 
 function install_postfix_dovecot() {
-    printf 'y\n' | ufw enable
+    printf 'y\n' | ufw enable > /dev/null 2>&1
     ufw allow 587/tcp > /dev/null 2>&1
     ufw allow 993/tcp > /dev/null 2>&1
     ufw allow 25/tcp > /dev/null 2>&1
@@ -409,7 +409,7 @@ EOF
     service opendkim status
     service opendmarc status
     service dovecot status
-    printf 'y\n' | ufw enable
+    printf 'y\n' | ufw enable > /dev/null 2>&1
 }
 
 function always_https() {
@@ -500,7 +500,7 @@ EOF
     if [ $(lsof -nPi | grep -i apache | grep -c ":443 (LISTEN)") -ge 1 ]; 
         then echo '[+] Apache2 SSL is running!'
     fi
-    printf 'y\n' | ufw enable
+    printf 'y\n' | ufw enable > /dev/null 2>&1
 }
 
 function httpsc2doneright(){
@@ -896,7 +896,7 @@ EOF
     chown -R www-data:www-data /var/www/
     service apache2 start > /dev/null 2>&1
     service apache2 force-reload
-
+    printf 'y\n' | ufw enable > /dev/null 2>&1
     echo $'\n\nACCESS Instructions:\t\n'
     echo -n $'\n\t'
     echo "https://${DOMAIN}:8443/?admin";echo $'\n\tusername:\tadmin\n\tpassword:\t12345\n\n\tCHANGE PASSWORD AFTER LOGGING IN!'
