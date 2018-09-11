@@ -552,7 +552,6 @@ function httpsc2doneright(){
 }
 
 function get_dns_entries() {
-#    extip=$(ifconfig|grep 'Link encap\|inet '|awk '!/Loopback|:127./'|tr -s ' '|grep 'inet'|tr ':' ' '|cut -d" " -f3|grep -E -iv '127\.0\.0\.1')
     extip=$(ip a |grep -E -iv '\slo|forever|eth0:1' | grep "inet" |cut -d" " -f6 |cut -d"/" -f1)
     domain=$(ls /etc/opendkim/keys/ | head -1)
     fields=$(echo "${domain}" | tr '.' '\n' | wc -l)
@@ -639,60 +638,168 @@ EOF
 
 }
 
-function setupSSH() {
-    apt-get -qq -y install sudo > /dev/null 2>&1
-    apt-get -qq -y install fail2ban > /dev/null 2>&1
+function roll_domain() {
+    read -p '  Your NEW Domain (everything after the @ sign):  ' -r newDomain
+    mkdir -p "/etc/opendkim/keys/${newDomain}"
+    cd "/etc/opendkim/keys/${newDomain}" || exit
+    opendkim-genkey -b 1024 -s mail -d "${newDomain}"
 
-    echo "Create a User to ssh into this system securely"
-
-    read -p "Enter your user name: " -r user_name
-
-    adduser $user_name
-
-    usermod -aG sudo $user_name
-
-    cat <<-EOF > /etc/ssh/sshd_config
-    Port 22
-    Protocol 2
-    HostKey /etc/ssh/ssh_host_rsa_key
-    HostKey /etc/ssh/ssh_host_dsa_key
-    HostKey /etc/ssh/ssh_host_ecdsa_key
-    UsePrivilegeSeparation yes
-    KeyRegenerationInterval 3600
-    ServerKeyBits 1024
-    SyslogFacility AUTH
-    LogLevel INFO
-    LoginGraceTime 120
-    PermitRootLogin no
-    StrictModes yes
-    RSAAuthentication yes
-    PubkeyAuthentication yes
-    IgnoreRhosts yes
-    RhostsRSAAuthentication no
-    HostbasedAuthentication no
-    PermitEmptyPasswords no
-    ChallengeResponseAuthentication no
-    PasswordAuthentication yes
-    X11Forwarding yes
-    X11DisplayOffset 10
-    PrintMotd no
-    PrintLastLog yes
-    TCPKeepAlive yes
-    Banner no
-    AcceptEnv LANG LC_*
-    Subsystem sftp /usr/lib/openssh/sftp-server
-    UsePAM yes
+    cat <<-EOF > /etc/opendkim.conf
+domain                              *
+AutoRestart                     Yes
+AutoRestartRate             10/1h
+Umask                                   0002
+Syslog                              Yes
+SyslogSuccess                   Yes
+LogWhy                              Yes
+Canonicalization            relaxed/simple
+ExternalIgnoreList      refile:/etc/opendkim/TrustedHosts
+InternalHosts                   refile:/etc/opendkim/TrustedHosts
+KeyFile                             /etc/opendkim/keys/${newDomain}/mail.private
+Selector                            mail
+Mode                                    sv
+PidFile                             /var/run/opendkim/opendkim.pid
+SignatureAlgorithm      rsa-sha256
+UserID                              opendkim:opendkim
+Socket                              inet:12301@localhost
 EOF
 
-    echo "AllowUsers ${user_name}" > /etc/ssh/sshd_config
 
-    cp /etc/fail2ban/jail.conf /etc/fail2ban/jail.local
+    cat <<-EOF > /etc/opendmarc.conf
+AuthservID ${newDomain}
+PidFile /var/run/opendmarc/opendmarc.pid
+RejectFailures false
+Syslog true
+TrustedAuthservIDs ${newDomain}
+Socket  inet:54321@localhost
+UMask 0002
+UserID opendmarc:opendmarc
+IgnoreHosts /etc/opendmarc/ignore.hosts
+HistoryFile /var/run/opendmarc/opendmarc.dat
+EOF
 
-    cd /home/$user_name
-    runuser -l $user_name -c "mkdir '.ssh'"
-    runuser -l $user_name -c "chmod 700 ~/.ssh"
+    cat <<-EOF > /etc/hostname
+127.0.0.1
+localhost
+${newDomain}
 
-    service ssh restart
+EOF
+    echo "${newDomain}" > /etc/mailname
+
+    cat <<-EOF > /etc/hosts
+127.0.1.1 mail mail.${newDomain}
+127.0.0.1 localhost mail.${newDomain}
+EOF
+
+    cat <<-EOF > /etc/opendkim/TrustedHosts
+127.0.1.1
+localhost 
+${newDomain}
+EOF
+
+    chown -R opendkim:opendkim /etc/opendkim/
+
+    cat <<-EOF > /etc/postfix/main.cf
+smtpd_banner = $myhostname ESMTP $mail_name (Debian/GNU)
+biff = no
+append_dot_mydomain = no
+readme_directory = no
+smtpd_tls_cert_file=/etc/letsencrypt/live/${newDomain}/fullchain.pem
+smtpd_tls_key_file=/etc/letsencrypt/live/${newDomain}/privkey.pem
+smtpd_tls_security_level = may
+smtp_tls_security_level = may
+smtpd_tls_protocols = !SSLv2, !SSLv3
+smtpd_tls_session_cache_database = btree:${data_directory}/smtpd_scache
+smtp_tls_session_cache_database = btree:${data_directory}/smtp_scache
+smtpd_relay_restrictions = permit_mynetworks permit_sasl_authenticated defer_unauth_destination
+myhostname = ${newDomain}
+alias_maps = hash:/etc/aliases
+alias_database = hash:/etc/aliases
+myorigin = ${newDomain}
+mydestination = ${newDomain}, localhost.com, , localhost
+relayhost =
+mynetworks = 127.0.0.0/8 [::ffff:127.0.0.0]/104 [::1]/128 
+mailbox_command = procmail -a "$EXTENSION"
+mailbox_size_limit = 0
+recipient_delimiter = +
+inet_interfaces = all
+inet_protocols = ipv4
+milter_default_action = accept
+milter_protocol = 6
+smtpd_milters = inet:12301,inet:localhost:54321
+non_smtpd_milters = inet:12301,inet:localhost:54321
+disable_vrfy_command = yes
+smtp_tls_note_starttls_offer = yes
+always_bcc = mailarchive@${newDomain}
+EOF
+
+    cat <<-EOF > /etc/dovecot/dovecot.conf
+log_path = /var/log/dovecot.log
+auth_verbose=yes
+auth_debug=yes
+auth_debug_passwords=yes
+mail_debug=yes
+verbose_ssl=yes
+disable_plaintext_auth = no
+mail_privileged_group = mail
+mail_location = mbox:~/mail:INBOX=/var/mail/%u
+
+userdb {
+  driver = passwd
+}
+
+passdb {
+  args = %s
+  driver = pam
+}
+
+protocols = " imap"
+
+protocol imap {
+  mail_plugins = " autocreate"
+}
+
+plugin {
+  autocreate = Trash
+  autocreate2 = Sent
+  autosubscribe = Trash
+  autosubscribe2 = Sent
+}
+
+service imap-login {
+  inet_listener imap {
+    port = 0
+  }
+  inet_listener imaps {
+    port = 993
+  }
+}
+
+service auth {
+  unix_listener /var/spool/postfix/private/auth {
+    group = postfix
+    mode = 0660
+    user = postfix
+  }
+}
+
+ssl=required
+ssl_cert = </etc/letsencrypt/live/${newDomain}/fullchain.pem
+ssl_key = </etc/letsencrypt/live/${newDomain}/privkey.pem
+EOF
+
+    echo "Restarting Services"
+    service postfix restart
+    service opendkim restart
+    service opendmarc restart
+    service dovecot restart
+
+    echo "Checking Service Status"
+    service postfix status
+    service opendkim status
+    service opendmarc status
+    service dovecot status
+    printf 'y\n' | ufw enable > /dev/null 2>&1
 
 }
 
@@ -913,39 +1020,39 @@ cat <<-EOF
 EOF
 
 PS3="Server Setup Script - Pick an option: "
-options=("Setup SSH" "Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Install WebMail")
+options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Install WebMail" "Roll da Domain")
 select opt in "${options[@]}" "Quit"; do
 
     case "$REPLY" in
 
     #Prep
-    1) setupSSH;;
+    1) debian_initialize;;
 
-    2) debian_initialize;;
+    2) sender_account;;
 
-    3) sender_account;;
+    3) install_ssl_Cert;;
 
-    4) install_ssl_Cert;;
+    4) install_postfix_dovecot;;
 
-    5) install_postfix_dovecot;;
+    5) always_https;;
 
-    6) always_https;;
+    6) httpsc2doneright;;
 
-    7) httpsc2doneright;;
-
-    8) get_dns_entries;;
+    7) get_dns_entries;;
         
-    9) hta_create;;
+    8) hta_create;;
         
-    10) check_dkim;;
+    9) check_dkim;;
         
-    11) check_arecord;;
+    10) check_arecord;;
         
-    12) add_firewall_rule;;
+    11) add_firewall_rule;;
 
-    13) smb_share;;
+    12) smb_share;;
     
-    14) webmail_install;;
+    13) webmail_install;;
+
+    14) roll_domain;;
 
     $(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
     *) echo "Invalid option. Try another one.";continue;;
