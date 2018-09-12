@@ -34,7 +34,7 @@ Server Setup Script - Pick an option:
 ```
 
 ## next steps...
-Start with Option-1 and progress through as many options as you want! Minimal mail server are Options 1-4, & 7. This script is not designed to be run without thinking, so please know **what you are running** and **why you are running it**.
+Start with Option-1 and progress through as many options as you want! Minimal mail server consists of options 1-4, & 7. This script is not designed to be run without thinking, so please know **what you are running** and **why you are running it**.
 
 # Common Problems...
 ### Initial Updates are stuck on `...keep waiting...`
