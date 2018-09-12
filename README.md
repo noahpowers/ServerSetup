@@ -37,7 +37,7 @@ Server Setup Script - Pick an option:
 Start with Option-1 and progress through as many options as you want! This script is not designed to be run without thinking, so please know **what you are running** and **why you are running it**.
 
 # Common Problems...
-### Initial Updates are stuck on `...keep waiting...`
+### Initial Updates are stuck on ######`...keep waiting...`
 If you have a relatively fast internet connection, and it's hanging for 10+ minutes, then go-ahead and click `ENTER` once. The script silences output, and chances are good one of the updates wants you to accept a default option before progressing. This has only been observed in cloud-based images (ie. Digital Ocean).
 
 ### Why is it asking for the external internet address/range?
@@ -48,8 +48,10 @@ You need to purchase your own domain names.
 
 ### I ran `4) Setup HTTPS Website` and `13) Install WebMail` and now I cannot access my secure website.
 Yes. This goes back to the idea that this script has many options and not all are designed to be run together. This isn't to say it cannot be done, just that you'll have some manual leg work to do. Here's the reason this occurs. The `Setup HTTPS Website` uses standard web ports (80/TCP and 443/TCP) to do what it does, since this is standard internet stuff. When we `Install WebMail` it changes the configuration of the ports so that only our host range can connect to it (for security purposes), and de-activates any webpages not our webmail. Don't worry though, all the information is there and just needs to be turned on again. See the commands below to do just that.
-`service apache2 stop`
-`nano /etc/apache2/ports.conf`
+```
+service apache2 stop
+nano /etc/apache2/ports.conf
+```
 * add port 80 and port 443 in their applicable areas, but DO NOT delete ports 81 and 8443.
 ```
 cd /etc/apache2/sites-available
