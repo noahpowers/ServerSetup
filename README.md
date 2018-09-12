@@ -17,9 +17,11 @@
 
 # Installation
 ## commands
-`git clone https://github.com/noahpowers/ServerSetup`
-`cd ServerSetup && chmod +x serversetup.sh`
-`./serversetup.sh`
+```
+git clone https://github.com/noahpowers/ServerSetup
+cd ServerSetup && chmod +x serversetup.sh
+./serversetup.sh
+```
 
 ## what you'll see
 ```
