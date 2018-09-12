@@ -41,7 +41,7 @@ Start with Option-1 and progress through as many options as you want! This scrip
 If you have a relatively fast internet connection, and it's hanging for 10+ minutes, then go-ahead and click `ENTER` once. The script silences output, and chances are good one of the updates wants you to accept a default option before progressing. This has only been observed in cloud-based images (ie. Digital Ocean).
 
 ### Why is it asking for the external internet address/range?
-The script stands-up a UFW firewall instance and adds your external address/range to the `always allow` list. This way your system isn't blocked from connecting to your server.
+The script stands-up a UFW firewall instance and adds your external address/range to the `always allow` list. This way you're system isn't blocked from connecting to your server.
 
 ### Where do I obtain a Domain Name from?
 You need to purchase your own domain names.
@@ -74,3 +74,10 @@ This is an expert question and one you'll get better at with your own research. 
 
 ### What's a Use-Case for rolling a domain?
 Uh... you guess...
+
+### After rolling my domain, I'm having DKIM problems.
+Not sure why, but sometimes the server has troubles with what appears to be name records and entries lingering. The only thing I've found that helps thus far is the following.
+1. Make sure you've generated SSL certs for your new domain, which means you need basic records already setup for your new domain before running `3) Install SSL`.
+2. Make sure you're using the most recent DKIM key by running `7) Get DNS Entries` and inputting the right DKIM key to your Domain Name Provider.
+3. Prior to inputting the DKIM key for your new domain, **delete** the MX Record and DKIM Record on your old domain.
+4. After the MX and DKIM records are cleared from your Domain Name Servers, *then* input your new MX and DKIM records.
