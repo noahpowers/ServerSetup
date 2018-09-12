@@ -37,7 +37,7 @@ Server Setup Script - Pick an option:
 Start with Option-1 and progress through as many options as you want! This script is not designed to be run without thinking, so please know **what you are running** and **why you are running it**.
 
 # Common Problems...
-### Initial Updates are stuck on ######`...keep waiting...`
+### Initial Updates are stuck on `...keep waiting...`
 If you have a relatively fast internet connection, and it's hanging for 10+ minutes, then go-ahead and click `ENTER` once. The script silences output, and chances are good one of the updates wants you to accept a default option before progressing. This has only been observed in cloud-based images (ie. Digital Ocean).
 
 ### Why is it asking for the external internet address/range?
