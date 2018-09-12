@@ -39,7 +39,7 @@ Start with Option-1 and progress through as many options as you want! This scrip
 If you have a relatively fast internet connection, and it's hanging for 10+ minutes, then go-ahead and click `ENTER` once. The script silences output, and chances are good one of the updates wants you to accept a default option before progressing. This has only been observed in cloud-based images (ie. Digital Ocean).
 
 ### Why is it asking for the external internet address/range?
-The script stands-up a UFW firewall instance and adds your external address/range to the `always allow` list. This way you're system isn't blocked from connecting to your server.
+The script stands-up a UFW firewall instance and adds your external address/range to the `always allow` list. This way your system isn't blocked from connecting to your server.
 
 ### Where do I obtain a Domain Name from?
 You need to purchase your own domain names.
