@@ -1007,8 +1007,11 @@ EOF
 
     cat <<-EOF > /etc/apache2/sites-available/000-default.conf
 <VirtualHost *:81>
-    ServerName ${DOMAIN}
-    Redirect permanent / https://${DOMAIN}:8443/
+    <IfModule mod_rewrite.c>
+        RewriteEngine On
+        RewriteCond %{HTTPS} off
+        RewriteRule (.*) https://%{HTTP_HOST}:8443%{REQUEST_URI}
+    </IfModule>
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/webmail
     <Directory "/var/www/webmail">
