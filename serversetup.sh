@@ -425,6 +425,8 @@ function always_https() {
     a2enmod rewrite
     service apache2 stop > /dev/null
     a2enmod ssl > /dev/null
+    a2enmod headers > /dev/null
+    a2enmod http2 > /dev/null
     cd /etc/apache2/sites-enabled/
     a2dissite 000-default > /dev/null 2>&1
     a2dissite default-ssl > /dev/null 2>&1
@@ -458,12 +460,15 @@ EOF
     cat <<-EOF > /etc/apache2/sites-available/default-ssl.conf
 <IfModule mod_ssl.c>
     <VirtualHost _default_:443>
+        Protocols h2 http/1.1
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         ServerAdmin webmaster@localhost
         DocumentRoot /var/www/html
         ErrorLog \${APACHE_LOG_DIR}/error.log
         CustomLog \${APACHE_LOG_DIR}/access.log combined
         SSLEngine on
-        SSLProtocol All -SSLv2 -SSLv3
+        SSLProtocol +TLSv1.1 +TLSv1.2 -SSLv2 -SSLv3
+        SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
         SSLCertificateFile /etc/letsencrypt/live/${webaddr}/cert.pem
         SSLCertificateKeyFile /etc/letsencrypt/live/${webaddr}/privkey.pem
         SSLCertificateChainFile /etc/letsencrypt/live/${webaddr}/chain.pem
@@ -978,12 +983,15 @@ EOF
     cat <<-EOF > /etc/apache2/sites-available/webmail-ssl.conf
 <IfModule mod_ssl.c>
     <VirtualHost _default_:8443>
+        Protocols h2 http/1.1
+        Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         ServerAdmin webmaster@localhost
         DocumentRoot /var/www/webmail
         ErrorLog ${APACHE_LOG_DIR}/webmail-error.log
         CustomLog ${APACHE_LOG_DIR}/webmail-access.log combined
         SSLEngine on
-        SSLProtocol All -SSLv2 -SSLv3
+        SSLProtocol +TLSv1.1 +TLSv1.2 -SSLv2 -SSLv3
+        SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
         SSLCertificateFile /etc/letsencrypt/live/${DOMAIN}/cert.pem
         SSLCertificateKeyFile /etc/letsencrypt/live/${DOMAIN}/privkey.pem
         SSLCertificateChainFile /etc/letsencrypt/live/${DOMAIN}/chain.pem
@@ -997,7 +1005,25 @@ EOF
 </IfModule>
 EOF
 
+    cat <<-EOF > /etc/apache2/sites-available/000-default.conf
+<VirtualHost *:81>
+    ServerName ${DOMAIN}
+    Redirect permanent / https://${DOMAIN}:8443/
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/webmail
+    <Directory "/var/www/webmail">
+        AllowOverride All
+    </Directory>
+    ErrorLog \${APACHE_LOG_DIR}/webmail81-error.log
+    CustomLog \${APACHE_LOG_DIR}/webmail81-access.log combined
+</VirtualHost>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+EOF
+
     a2enmod ssl
+    a2enmod headers
+    a2enmod http2
     cd /etc/apache2/sites-available/
     a2ensite webmail-ssl.conf
     chown -R www-data:www-data /var/www/
