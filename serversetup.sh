@@ -198,6 +198,9 @@ function install_postfix_dovecot() {
     password=$(openssl rand -hex 10 | base64)
     adduser mailarchive --quiet --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
     echo "mailarchive:${password}" | chpasswd > /dev/null 2>&1
+    password2=$(openssl rand -hex 10 | base64)
+    adduser mailcheck --quiet --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
+    echo "mailcheck:${password2}" | chpasswd > /dev/null 2>&1
     echo $'\nInstalling Dependicies\n'
     apt-get install -qq -y dovecot-common dovecot-imapd dovecot-lmtpd
     apt-get install -qq -y postfix postgrey postfix-policyd-spf-python
@@ -208,7 +211,10 @@ function install_postfix_dovecot() {
     echo $'###################################################################'                                                                 #'
     echo "# [ + ] 'mailarchive' password is:  ${password}  #"
     echo $'###################################################################\n'
-
+    echo $'\n[ ] We use the "mailcheck" account to verify any email problems.\n'
+    echo $'###################################################################'                                                                 #'
+    echo "# [ + ] 'mailcheck' password is:  ${password2}  #"
+    echo $'###################################################################\n'
     read -p "Enter your mail server's domain (everything after the '@' sign): " -r primary_domain
     echo $'\n'
     read -p "Enter IP's to allow Relay (if none just hit enter): " -r relay_ip
@@ -246,6 +252,19 @@ non_smtpd_milters = inet:12301,inet:localhost:54321
 disable_vrfy_command = yes
 smtp_tls_note_starttls_offer = yes
 always_bcc = mailarchive@${primary_domain}
+smtpd_discard_ehlo_keyword_address_maps = cidr:/etc/postfix/esmtp_access
+notify_classes = bounce, delay, policy, protocol, resource, software
+bounce_notice_recipient = mailcheck
+delay_notice_recipient = mailcheck
+error_notice_recipient = mailcheck
+EOF
+
+    cat <<-EOF >> /etc/postfix/esmtp_access
+# Allow DSN requests from local subnet only
+192.168.0.0/16  silent-discard
+172.16.0.0/16   silent-discard
+0.0.0.0/0   silent-discard, dsn
+::/0        silent-discard, dsn
 EOF
 
     cat <<-EOF >> /etc/postfix/master.cf
