@@ -273,7 +273,8 @@ submission inet n       -       -       -       -       smtpd
   -o smtpd_tls_wrappermode=no
   -o smtpd_tls_security_level=encrypt
   -o smtpd_sasl_auth_enable=yes
-  -o smtpd_recipient_restrictions=permit_mynetworks,permit_sasl_authenticated,reject
+  -o smtpd_recipient_restrictions=permit_mynetworks,permit_sasl_authenticated,reject_unauth_destination
+  -o smtpd_sender_restrictions=reject_unknown_sender_domain
   -o milter_macro_daemon_name=ORIGINATING
   -o smtpd_sasl_type=dovecot
   -o smtpd_sasl_path=private/auth
