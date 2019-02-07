@@ -845,22 +845,24 @@ function sender_account() {
 
 function check_dkim() {
     read -p '[ ] What domain will emails come from? ' -r domain
-    echo " "
-    echo "[ / ] Checking DKIM Record population "
+    echo -e "\n[ / ] Checking DKIM Record propagation "
     sleep 1
-    count=1
-    while [ $count -gt 0 ]
-    do
-        if [[ $(host -t TXT mail._domainkey.${domain}) != *NXDOMAIN* ]]
-            then count=0
-            echo $'[ + ] DKIM record is populated.\n'
-            else echo $'[ - ]  DKIM is NOT populated\n'
-            echo -n "."
-            sleep 10
-            (( count++ ))
-        fi
-    done
-    printf 'y\n' | ufw enable > /dev/null 2>&1
+    dnsDKIM=$(dig +short -t TXT mail._domainkey.${domain} | tr -d "\"" | tr -d " ") 
+    localDKIM=""
+    if [ -f /etc/opendkim/keys/${domain}/mail.txt ]; then
+        localDKIM=$(cat /etc/opendkim/keys/${domain}/mail.txt | tr -d "\n" | tr -d "\t" | cut -f 2 -d "(" | cut -f 1 -d ")" |tr -d " " | tr -d "\"")
+    else
+        echo "[ - ] WARNING: Can not find local DKIM record for that domain"
+    fi
+
+    echo -e "\nLocal DKIM Key: $localDKIM"
+    echo -e "DNS   DKIM Key: $dnsDKIM \n"
+
+    if [ "$localDKIM" = "$dnsDKIM" ]; then 
+        echo -e "[ + ] DKIM propagation was successful!\n"
+    else 
+        echo -e "[ - ] WARNING: DKIM record from DNS lookup DOES NOT match server's DKIM key.\n"
+    fi
 }
 
 function check_arecord() {
