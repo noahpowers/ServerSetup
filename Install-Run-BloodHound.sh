@@ -11,7 +11,7 @@ apt-get install neo4j -y
 
 ### Download new Bloodhound
 ### https://github.com/BloodHoundAD/BloodHound/releases
-wget -O BloodHound-linux-x64.zip https://github.com/BloodHoundAD/BloodHound/releases/download/2.0.5/BloodHound-linux-x64.zip
+wget -O BloodHound-linux-x64.zip https://github.com/BloodHoundAD/BloodHound/releases/download/2.1.0/BloodHound-linux-x64.zip
 unzip BloodHound-linux-x64.zip
 cp -a BloodHound-linux-x64/ /opt/
 
