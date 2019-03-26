@@ -1090,14 +1090,19 @@ DavLockDB /var/www/DavLock
     ServerAdmin webmaster@localhost
     DocumentRoot /var/www/html
     Alias /webdav /var/www/webdav
-    <Directory "/var/www/webdav">
+    ErrorLog ${APACHE_LOG_DIR}/error.log
+    CustomLog ${APACHE_LOG_DIR}/access.log combined
+    <Location /webdav>
+        Options Indexes
         DAV On
-    </Directory>
-    ErrorLog \${APACHE_LOG_DIR}/error.log
-    CustomLog \${APACHE_LOG_DIR}/access.log combined
+        <LimitExcept GET HEAD OPTIONS PROPFIND>
+            Deny from all
+        </LimitExcept>
+        Satisfy all
+    </Location>
 </VirtualHost>
-
 # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+
 EOF
     cd /var/www/ && chown -R www-data:www-data html/ > /dev/null 2>&1
     cd /etc/apache2/sites-available/
