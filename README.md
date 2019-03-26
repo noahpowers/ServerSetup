@@ -12,6 +12,7 @@
   * mail sender accounts
   * SSL certs
   * setting up SMB share
+  * setting up WebDAV server (NOT secure)
   * installing webmail
   * rolling a domain
 
