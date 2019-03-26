@@ -1126,7 +1126,7 @@ cat <<-EOF
 EOF
 
 PS3="Server Setup Script - Pick an option: "
-options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Install WebMail" "Roll da Domain" "Setup WebDAV Share")
+options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Setup WebDAV Share" "Install WebMail" "Roll da Domain")
 select opt in "${options[@]}" "Quit"; do
 
     case "$REPLY" in
@@ -1156,11 +1156,11 @@ select opt in "${options[@]}" "Quit"; do
 
     12) smb_share;;
     
-    13) webmail_install;;
+    13) webdav_share;;
+    
+    14) webmail_install;;
 
-    14) roll_domain;;
-
-    15) webdav_share;;
+    15) roll_domain;;
 
     $(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
     *) echo "Invalid option. Try another one.";continue;;
