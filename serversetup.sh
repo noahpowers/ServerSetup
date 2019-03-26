@@ -1060,6 +1060,61 @@ EOF
     echo "https://${DOMAIN}:8443/?admin";echo $'\n\tusername:\tadmin\n\tpassword:\t12345\n\n\tCHANGE PASSWORD AFTER LOGGING IN!'
 }
 
+function webdav_share() { 
+    service apache2 stop
+    mkdir -p /var/www/webdav
+    chown -R www-data:www-data /var/www/
+    a2enmod dav
+    a2enmod dav_fs
+    a2enmod headers > /dev/null
+    a2enmod http2 > /dev/null
+    cd /etc/apache2/sites-enabled/
+    a2dissite 000-default > /dev/null 2>&1
+    a2dissite default-ssl > /dev/null 2>&1
+    a2dissite 000-default.conf > /dev/null 2>&1
+    a2dissite default-ssl.conf > /dev/null 2>&1
+    if [ ! -f /etc/apache2/sites-available/000-default.conf-bkup ];
+        then echo "[ - ] backing-up 000-default.conf"; 
+        cp /etc/apache2/sites-available/000-default.conf /etc/apache2/sites-available/000-default.conf-bkup;
+        else echo "[ / ] 000-default.conf already backed up at some point"; 
+    fi
+    if [ ! -f /etc/apache2/sites-available/default-ssl.conf-bkup ];
+        then printf "[ - ] backing-up default-ssl.conf"; 
+        cp /etc/apache2/sites-available/default-ssl.conf /etc/apache2/sites-available/default-ssl.conf-bkup; 
+    else echo "[ / ] default-ssl.conf already backed up at some point"
+    fi
+
+    cat <<-EOF > /etc/apache2/sites-available/000-default.conf
+DavLockDB /var/www/DavLock
+<VirtualHost *:80>
+    ServerAdmin webmaster@localhost
+    DocumentRoot /var/www/html
+    Alias /webdav /var/www/webdav
+    <Directory "/var/www/webdav">
+        DAV On
+    </Directory>
+    ErrorLog \${APACHE_LOG_DIR}/error.log
+    CustomLog \${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>
+
+# vim: syntax=apache ts=4 sw=4 sts=4 sr noet
+EOF
+    cd /var/www/ && chown -R www-data:www-data html/ > /dev/null 2>&1
+    cd /etc/apache2/sites-available/
+    echo "[ + ]  Restarting Apache2"
+    service apache2 start > /dev/null
+    echo "[ + ]  Enabling HTTP-WebDAV site"
+    a2ensite 000-default.conf > /dev/null
+    echo "[ + ]  Restarting Apache2"
+    service apache2 reload > /dev/null
+    sleep 3
+    if [ $(lsof -nPi | grep -i apache | grep -c ":443 (LISTEN)") -ge 1 ]; 
+        then echo '[+] Apache2 SSL is running!'
+    fi
+    printf 'y\n' | ufw enable > /dev/null 2>&1
+
+}
+
 cat <<-EOF
      __                          __      _               
     / _\ ___ _ ____   _____ _ __/ _\ ___| |_ _   _ _ __  
@@ -1071,7 +1126,7 @@ cat <<-EOF
 EOF
 
 PS3="Server Setup Script - Pick an option: "
-options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Install WebMail" "Roll da Domain")
+options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Install WebMail" "Roll da Domain" "Setup WebDAV Share")
 select opt in "${options[@]}" "Quit"; do
 
     case "$REPLY" in
@@ -1104,6 +1159,8 @@ select opt in "${options[@]}" "Quit"; do
     13) webmail_install;;
 
     14) roll_domain;;
+
+    15) webdav_share;;
 
     $(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
     *) echo "Invalid option. Try another one.";continue;;
