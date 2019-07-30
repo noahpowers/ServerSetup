@@ -7,13 +7,16 @@
     <title>User Testing </title> 
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css" integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
     <script src="https://kit.fontawesome.com/9bc9872b8b.js"></script>
+    <style type="text/css">
+        slow-spin {animation-duration: 6s;}
+    </style>
 </head>
 <body style="background-color: #3f3f3f">
     <div class="container-fluid">
-        <div class="jumbotron">
+        <div class="jumbotron" style="max-height: 275px">
             <h1>Phishing Payload Testing!</h1>
             <p class="lead">This site is used for the simple task of validating which payloads will execute in the environment with security in place.</p>
-            <p class="lead">Please use the following browser:  <i class="fab fa-internet-explorer fa-2x" style="color: #1EBBEE"></i>    <span class="fa-stack fa-2x"><i class="fab fa-chrome fa-stack-1x"></i><i class="fas fa-ban fa-stack-2x" style="color: Tomato;opacity: 0.65"></i></span></p>
+            <p class="lead">Please use the following browser:  <i class="fab fa-internet-explorer fa-2x" style="color: #1EBBEE"></i>    <span class="fa-stack fa-2x"><i class="fab fa-chrome fa-stack-1x"></i><i class="fas fa-ban fa-stack-2x slow-spin" style="color: Red;opacity: 0.5"></i></span></p>
         </div>
         <div class="row" style="text-align: center;min-height: 85px">
             <div class="col-sm-1"></div>
