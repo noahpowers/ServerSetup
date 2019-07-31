@@ -838,7 +838,7 @@ function sender_account() {
     echo $'\n';echo $topline
     echo $credentials
     echo $bottomline;echo $'\n'
-    adduser ${accountname} --quiet --force-badname --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
+    adduser ${accountname} --quiet --force-badname --disabled-password --shell /usr/sbin/nologin --gecos "" > /dev/null 2>&1
     echo "${accountname}:${accountpassword}" | chpasswd > /dev/null 2>&1
     printf 'y\n' | ufw enable > /dev/null 2>&1
 }
