@@ -665,6 +665,9 @@ EOF
 
 function roll_domain() {
     read -p '  Your NEW Domain (everything after the @ sign):  ' -r newDomain
+    mkdir -p /etc/opendkim/old-keys/
+    cp -a /etc/opendkim/keys/* /etc/opendkim/old-keys/
+    rm -rf /etc/opendkim/keys/*
     mkdir -p "/etc/opendkim/keys/${newDomain}"
     cd "/etc/opendkim/keys/${newDomain}" || exit
     opendkim-genkey -b 1024 -s mail -d "${newDomain}"
