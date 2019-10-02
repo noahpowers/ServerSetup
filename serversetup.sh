@@ -1,5 +1,9 @@
 #!/bin/bash
 
+apikeyValue="<APIKEY>"
+usernameValue="<USERNAME>"
+updateIP="<EXT IPaddr>"
+
 if [[ $EUID -ne 0 ]]; then
     echo "Please run this script as root" 1>&2
     exit 1
@@ -43,6 +47,10 @@ EOF
     read -p "Enter your hostname[.]FQDN (without brackets):  " -r primary_domain
     read -p "Enter your External IP Address (or range):  " -r extIP
 
+    IFS="." read -ra values <<< "$primary_domain"
+    dName=${values[1]}
+    toplevel=${values[2]}
+    extip1=$(ip a |grep -E -iv '\slo|forever|eth0:1' | grep "inet" |cut -d" " -f6 |cut -d"/" -f1)
     cat <<-EOF > /etc/hosts
 127.0.1.1 $primary_hostname $primary_domain
 127.0.0.1 localhost $primary_domain
@@ -52,13 +60,29 @@ EOF
 $primary_hostname
 EOF
 
-    echo "The System will now reboot!"
-    ufw allow from $extIP to any > /dev/null 2>&1
-    ufw allow 80/tcp > /dev/null 2>&1
-    ufw allow 443/tcp > /dev/null 2>&1
-    update-rc.d ufw enable > /dev/null 2>&1
-    printf 'y\n' | ufw enable > /dev/null 2>&1
-    reboot
+    read -p "Are you using the NameCheap API for DNS? (y/N)" answer
+    answer=${answer:-n}
+    case ${answer:0:1} in
+        y|Y )
+            curl "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip1}&TTL1=300"
+            echo "The System will now reboot!"
+            ufw allow from $extIP to any > /dev/null 2>&1
+            ufw allow 80/tcp > /dev/null 2>&1
+            ufw allow 443/tcp > /dev/null 2>&1
+            update-rc.d ufw enable > /dev/null 2>&1
+            printf 'y\n' | ufw enable > /dev/null 2>&1
+            reboot
+        ;;
+        * )
+            echo "The System will now reboot!"
+            ufw allow from $extIP to any > /dev/null 2>&1
+            ufw allow 80/tcp > /dev/null 2>&1
+            ufw allow 443/tcp > /dev/null 2>&1
+            update-rc.d ufw enable > /dev/null 2>&1
+            printf 'y\n' | ufw enable > /dev/null 2>&1
+            reboot
+        ;;
+    esac
 }
 
 function reset_firewall() {
@@ -150,7 +174,7 @@ function add_firewall_rule() {
 function install_ssl_Cert() {
     if [ -d "/opt/letsencrypt/" ]
         then 
-        echo $'\n';echo "[ + ] LetsEncrypt already installed.  "
+        echo $'\n';echo "[ + ] LetsEncrypt already installed.  ";echo $'\n'
         printf 'y\n' | ufw enable > /dev/null 2>&1
         ufw allow 80/tcp > /dev/null 2>&1
         ufw allow 443/tcp > /dev/null 2>&1
@@ -166,28 +190,46 @@ function install_ssl_Cert() {
     letsencryptdomains=()
     end="false"
     i=0
-    
-    echo $'\nRemember to make records for both \twww.FQDN\tand\tFQDN\n'
-    
-    while [ "$end" != "true" ]
-    do
-        read -p "Enter your server's domain or done to exit: " -r domain
-        if [ "$domain" != "done" ]
-        then
-            letsencryptdomains[$i]=$domain
-        else
-            end="true"
-        fi
-        ((i++))
-    done
-    command="./certbot-auto certonly --standalone "
-    for i in "${letsencryptdomains[@]}";
-        do
-            command="$command -d $i"
-        done
-    command="$command -n --register-unsafely-without-email --agree-tos"
-    eval $command
-    printf 'y\n' | ufw enable > /dev/null 2>&1
+    read -p "Would you like to setup a wildcard SSL cert? (y/N)" answer
+    answer=${answer:-n}
+    case ${answer:0:1} in
+        y|Y )
+            cd /opt/letsencrypt
+
+            echo $'\n[!]\tThis script creates a wildcard certificate for all subdomains to your domain'
+            echo $'\n[!]\tJust enter your core domain name (e.g. github.com)'
+            echo $'\n'
+            read -p "Enter your server's domain:  " -r domain
+
+            command="./certbot-auto certonly --manual --register-unsafely-without-email --agree-tos --preferred-challenges dns -d '${domain},*.${domain}'"
+            eval $command
+            printf 'y\n' | ufw enable > /dev/null 2>&1
+        ;;
+        * )
+            
+            echo $'\nRemember to make records for both \twww.FQDN\tand\tFQDN\n'
+            
+            while [ "$end" != "true" ]
+            do
+                read -p "Enter your server's domain or done to exit: " -r domain
+                if [ "$domain" != "done" ]
+                then
+                    letsencryptdomains[$i]=$domain
+                else
+                    end="true"
+                fi
+                ((i++))
+            done
+            command="./certbot-auto certonly --standalone "
+            for i in "${letsencryptdomains[@]}";
+                do
+                    command="$command -d $i"
+                done
+            command="$command -n --register-unsafely-without-email --agree-tos"
+            eval $command
+            printf 'y\n' | ufw enable > /dev/null 2>&1
+        ;;
+    esac
 }
 
 function install_postfix_dovecot() {
@@ -213,7 +255,7 @@ function install_postfix_dovecot() {
     echo $'###################################################################\n'
     echo $'\n[ ] We use the "mailcheck" account to verify any email problems.\n'
     echo $'###################################################################'                                                                 #'
-    echo "# [ + ] 'mailcheck' password is:  ${password2}  #"
+    echo "# [ + ] 'mailcheck' password is:  ${password2}   #"
     echo $'###################################################################\n'
     read -p "Enter your mail server's domain (everything after the '@' sign): " -r primary_domain
     echo $'\n'
@@ -581,8 +623,17 @@ function get_dns_entries() {
     domain=$(ls /etc/opendkim/keys/ | head -1)
     fields=$(echo "${domain}" | tr '.' '\n' | wc -l)
     dkimrecord=$(cut -d '"' -f 2 "/etc/opendkim/keys/${domain}/mail.txt" | tr -d "[:space:]")
+    # dName=$( cat /etc/hosts | cut -d"." -f5 | uniq )
+    # toplevel=$( cat /etc/hosts | cut -d"." -f6 | uniq )
+    # fulldomain=$( cat /etc/hosts | cut -d"." -f5-7 | uniq )
+    dkim2=$( echo ${dkimrecord} | sed -r 's/\+/\%2B/g' | sed -r 's/\=/\%3D/g' | sed -r 's/\;/\%3B/g' | sed -r 's/\//\%2F/g' )
+    dmarcTemp0="v=DMARC1; p=reject"
+    dmarcTemp1=$( echo ${dmarcTemp0} | sed -r 's/\=/\%3D/g' | sed -r 's/\;/\%3B/g' | sed -r 's/\ /\%20/g' )
 
     if [[ $fields -eq 2 ]]; then
+        fulldomain=$( cat /etc/hosts | cut -d"." -f5-6 | uniq )
+        dName=$( cat /etc/hosts | cut -d"." -f5 | uniq )
+        toplevel=$( cat /etc/hosts | cut -d"." -f6 | uniq )
         cat <<-EOF > dnsentries.txt
         DNS Entries for ${domain}:
 
@@ -616,10 +667,23 @@ function get_dns_entries() {
         Priority: 10
         TTL: 5 min
 EOF
-        cat dnsentries.txt
+        read -p "Are you using the NameCheap API for DNS? (y/N)" answer
+        answer=${answer:-n}
+        case ${answer:0:1} in
+            y|Y )
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=www&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=@&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=@&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60"
+                cat dnsentries.txt
+            ;;
+            * )
+                cat dnsentries.txt
+            ;;
+        esac
     else
-        namehost=$(cat /etc/hostname)
-        prefix=$(echo "${domain}" | rev | cut -d '.' -f 3- | rev)
+        fulldomain=$( cat /etc/hosts | cut -d"." -f6-7 | uniq )
+        dName=$( cat /etc/hosts | cut -d"." -f6 | uniq )
+        toplevel=$( cat /etc/hosts | cut -d"." -f7 | uniq )
+        namehost=$( cat /etc/hostname | grep -E -iv "localhost|127.0.0.1" )
+        prefix=$( echo "${domain}" | rev | cut -d '.' -f 3- | rev )
         cat <<-EOF > dnsentries.txt
         DNS Entries for ${domain}:
 
@@ -658,7 +722,17 @@ EOF
         Priority: 10
         TTL: 5 min
 EOF
-        cat dnsentries.txt
+        read -p "Are you using the NameCheap API for DNS? (y/N)" answer
+        answer=${answer:-n}
+        case ${answer:0:1} in
+            y|Y )
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=${prefix}&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail.${prefix}&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=${prefix}&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=${prefix}&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey.${prefix}&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc.${prefix}&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60&HostName9=${namehost}&RecordType9=A&Address9=${extip}&TTL9=300"
+                cat dnsentries.txt
+            ;;
+            * )
+                cat dnsentries.txt
+            ;;
+        esac
     fi
 
 }
