@@ -1247,6 +1247,13 @@ select opt in "${options[@]}" "Quit"; do
     15) roll_domain;;
 
     $(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
+    
+    ?)
+	PS3=""
+	echo noah | select foo in "${options[@]}" "Quit"; do break; done 
+	PS3="Server Setup Script - Pick an option: "
+	;;
+	
     *) echo "Invalid option. Try another one.";continue;;
 
     esac
