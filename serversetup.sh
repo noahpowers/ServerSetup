@@ -48,8 +48,8 @@ EOF
     read -p "Enter your External IP Address (or range):  " -r extIP
 
     IFS="." read -ra values <<< "$primary_domain"
-    dName=${values[1]}
-    toplevel=${values[2]}
+    dName=${values[0]}
+    toplevel=${values[1]}
     extip1=$(ip a |grep -E -iv '\slo|forever|eth0:1' | grep "inet" |cut -d" " -f6 |cut -d"/" -f1)
     cat <<-EOF > /etc/hosts
 127.0.1.1 $primary_hostname $primary_domain
