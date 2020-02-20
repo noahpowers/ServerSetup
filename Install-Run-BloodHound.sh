@@ -23,6 +23,7 @@ rm -rf /var/lib/neo4j/data/databases/BloodHoundExampleDB.graphdb/data/dbms/auth
 cd /usr/bin
 read -p "Password you want:  " -r pass
 neo4j-admin set-initial-password $pass
+ulimit -n 40000
 screen -S neo4j -d -m neo4j console
 sleep 5
 
