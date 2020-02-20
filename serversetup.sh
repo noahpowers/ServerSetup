@@ -65,24 +65,15 @@ EOF
     case ${answer:0:1} in
         y|Y )
             curl "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip1}&TTL1=300"
-            echo "The System will now reboot!"
-            ufw allow from $extIP to any > /dev/null 2>&1
-            ufw allow 80/tcp > /dev/null 2>&1
-            ufw allow 443/tcp > /dev/null 2>&1
-            update-rc.d ufw enable > /dev/null 2>&1
-            printf 'y\n' | ufw enable > /dev/null 2>&1
-            reboot
-        ;;
-        * )
-            echo "The System will now reboot!"
-            ufw allow from $extIP to any > /dev/null 2>&1
-            ufw allow 80/tcp > /dev/null 2>&1
-            ufw allow 443/tcp > /dev/null 2>&1
-            update-rc.d ufw enable > /dev/null 2>&1
-            printf 'y\n' | ufw enable > /dev/null 2>&1
-            reboot
         ;;
     esac
+    ufw allow from $extIP to any > /dev/null 2>&1
+    ufw allow 80/tcp > /dev/null 2>&1
+    ufw allow 443/tcp > /dev/null 2>&1
+    update-rc.d ufw enable > /dev/null 2>&1
+    printf 'y\n' | ufw enable > /dev/null 2>&1
+    echo "The System will now reboot!"
+    reboot
 }
 
 function reset_firewall() {
