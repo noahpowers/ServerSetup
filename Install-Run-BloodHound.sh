@@ -11,7 +11,7 @@ apt-get install neo4j -y
 
 ### Download new Bloodhound
 ### https://github.com/BloodHoundAD/BloodHound/releases
-wget -O BloodHound-linux-x64.zip https://github.com/BloodHoundAD/BloodHound/releases/download/2.2.0/BloodHound-linux-x64.zip
+wget -O BloodHound-linux-x64.zip https://github.com/BloodHoundAD/BloodHound/releases/download/3.0.1/BloodHound-linux-x64.zip
 unzip BloodHound-linux-x64.zip
 cp -a BloodHound-linux-x64/ /opt/
 
@@ -33,4 +33,4 @@ echo "When BLANK WHITE SCREEN for BloodHound displays..."
 echo "...just click CONTROL+R"
 echo ""
 sleep 7
-/opt/BloodHound-linux-x64/BloodHound
+/opt/BloodHound-linux-x64/BloodHound --no-sandbox
