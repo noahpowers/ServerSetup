@@ -513,7 +513,17 @@ EOF
     cat <<-EOF > /etc/apache2/sites-available/default-ssl.conf
 <IfModule mod_ssl.c>
     <VirtualHost _default_:443>
+        <Directory "/var/www/html">
+        AllowOverride All
+        </Directory>
         Protocols h2 http/1.1
+        Header always set X-Frame-Options "SAMEORIGIN"
+        Header always set Access-Control-Allow-Origin "*"
+        Header always set X-Xss-Protection "1; mode=block"
+        Header always set X-Content-Type-Options "nosniff"
+        Header always set Feature-Policy "speaker *"
+        RequestHeader set X-HTTPS 1
+            Header set Referrer-Policy "no-referrer-when-downgrade"
         Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
         ServerAdmin webmaster@localhost
         DocumentRoot /var/www/html
