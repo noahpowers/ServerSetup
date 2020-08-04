@@ -1198,6 +1198,112 @@ EOF
 
 }
 
+function wireguard_install {
+    apt update
+    apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools
+    apt upgrade -y
+    apt dist-upgrade -y
+
+    ## Wireguard uses client config files. This tells how many config files to generate.
+    read -p "Enter a number of VPN clients to allow [1-9]: " -r number
+    if [[ $((number)) != $number ]]; then
+        echo "Invalid entry. Try again!"
+    fi
+
+    echo ""
+
+    read -p "What is the external IP of the VPN server? " -r extip
+
+    echo ""
+
+    ## Wireguard needs interface name. Attempt to automate discovery.
+    tempInterface=$( nmcli device status | cut -d" " -f1 | grep -E -iv "device|docker|lo|wg" )
+    read -p "Is your interface: ${tempInterface}? (Y/n) " -r answer
+    answer=${answer:-y}
+    case ${answer:0:1} in
+        y|Y )
+            interface=$tempInterface
+        ;;
+        * )
+            read -p "Enter your interface: (e.g. 'eth0') " -r interface
+        ;;
+    esac
+
+    originalDirectory=$(pwd)
+
+    cd /etc/wireguard/
+    umask 077
+    wg genkey | tee privatekey-server | wg pubkey > publickey-server
+    serverPrivateKey=$( cat privatekey-server )
+    serverPublicKey=$( cat publickey-server )
+
+    count="1"
+    startOctet="10"
+    while [ $number -ge $count ]; do
+        wg genkey | tee privatekey-${count} | wg pubkey > publickey-${count}
+        pubKey=$( cat publickey-${count} )
+        privKey=$( cat privatekey-${count} )
+        octet=$(( $startOctet + $count ))
+        ipAddress="10.0.0.${octet}/32"
+        ## Temp files will get combined into server config later...
+        cat <<-EOF > /etc/wireguard/temp-${count}.txt
+
+## client-$count
+[Peer]
+PublicKey = $pubKey
+AllowedIPs = $ipAddress
+EOF
+        ## Making Wireguard client config file
+        cat <<-EOF > /etc/wireguard/client-${count}.txt
+[Interface]
+PrivateKey = $privKey
+Address = $ipAddress
+DNS = 1.1.1.1
+
+
+[Peer]
+PublicKey = $serverPublicKey
+Endpoint = $extip:51820
+AllowedIPs = 0.0.0.0/0
+PersistentKeepalive = 15
+EOF
+        (( count ++ ))
+    done
+
+
+    ## Wireguard Server config file
+    cat <<-EOF > /etc/wireguard/wg0.conf
+[Interface]
+Address = 10.0.0.1/24
+Address = fd86:ea04:1115::1/64
+SaveConfig = true
+PostUp = iptables -A FORWARD -i wg0 -j ACCEPT; iptables -t nat -A POSTROUTING -o $interface -j MASQUERADE
+PostDown = iptables -D FORWARD -i wg0 -j ACCEPT; iptables -t nat -D POSTROUTING -o $interface -j MASQUERADE
+ListenPort = 51820
+PrivateKey = $serverPrivateKey
+
+EOF
+
+    ## Combining temp files into server config
+    cat /etc/wireguard/temp-*.txt >> /etc/wireguard/wg0.conf
+    ## Cleaning up temp files
+    rm /etc/wireguard/temp-*.txt
+
+    ## Setting-up stuff to run
+    ufw allow 51820/udp
+    sysctl net.ipv4.ip_forward=1
+    echo 'net.ipv4.ip_forward = 1' > /etc/sysctl.d/99-sysctl.conf
+    systemctl enable wg-quick@wg0
+    wg-quick up wg0
+    wg show
+
+    ## Setting-up Fail2Ban for protection
+    cd /etc/fail2ban
+    cp jail.conf jail.local
+    update-rc.d fail2ban enable
+    cd $originalDirectory
+}
+
 cat <<-EOF
      __                          __      _               
     / _\ ___ _ ____   _____ _ __/ _\ ___| |_ _   _ _ __  
@@ -1209,7 +1315,7 @@ cat <<-EOF
 EOF
 
 PS3="Server Setup Script - Pick an option: "
-options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Setup WebDAV Share" "Install WebMail" "Roll da Domain")
+options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Setup WebDAV Share" "Install WebMail" "Roll da Domain" "Install VPN")
 select opt in "${options[@]}" "Quit"; do
 
     case "$REPLY" in
@@ -1244,6 +1350,8 @@ select opt in "${options[@]}" "Quit"; do
     14) webmail_install;;
 
     15) roll_domain;;
+
+    16) wireguard_install;;
 
     $(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
     

@@ -15,6 +15,7 @@
   * setting up WebDAV server (NOT secure)
   * installing webmail
   * rolling a domain
+  * setting up VPN server (wireguard)
 
 # Installation
 ## commands
@@ -26,11 +27,12 @@ cd ServerSetup && chmod +x serversetup.sh
 
 ## what you'll see
 ```
-1) Debian Prep              6) HTTPS C2 Done Right  11) UFW allow hosts
-2) Account Setup            7) Get DNS Entries      12) Setup SMB Share
-3) Install SSL              8) Create HTA File      13) Install WebMail
-4) Install Mail Server      9) Check DKIM           14) Roll da Domain
-5) Setup HTTPS Website      10) Check A Records     15) Quit
+1) Debian Prep            7) Get DNS Entries    13) Setup WebDAV Share
+2) Account Setup          8) Create HTA File    14) Install WebMail
+3) Install SSL            9) Check DKIM         15) Roll da Domain
+4) Install Mail Server   10) Check A Records    16) Install VPN
+5) Setup HTTPS Website   11) UFW allow hosts    17) Quit
+6) HTTPS C2 Done Right   12) Setup SMB Share
 Server Setup Script - Pick an option: 
 ```
 
@@ -84,3 +86,9 @@ Not sure why, but sometimes the server has troubles with what appears to be name
 2. Make sure you're using the most recent DKIM key by running `7) Get DNS Entries` and inputting the right DKIM key to your Domain Name Provider.
 3. Prior to inputting the DKIM key for your new domain, **delete** the MX Record and DKIM Record on your old domain.
 4. After the MX and DKIM records are cleared from your Domain Name Servers, *then* input your new MX and DKIM records.
+
+### My VPN won't work!..!
+First... use OS versions at/above Ubuntu 20 or Debian 10. The preference for ease of setup should be Ubuntu 20 for the VPN. If using a cloud-based image of Debian 10 here's what you'll need to do *prior* to installing the VPN: 
+1. update linux-headers // apt install linux-headers-$(uname -r)
+2. reboot server
+3. run option `16) Install VPN`
