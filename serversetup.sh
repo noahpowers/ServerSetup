@@ -24,7 +24,8 @@ function debian_initialize() {
     echo -n "don't be impatient..."
     apt-get remove -qq -y exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
     rm -r /var/log/exim4/ > /dev/null 2>&1
-    apt install -qq -y linux-headers-$(uname -r)
+    command="linux-headers-$(uname -r)"
+    apt install -qq -y $command
 
     update-rc.d nfs-common disable > /dev/null 2>&1
     update-rc.d rpcbind disable > /dev/null 2>&1
