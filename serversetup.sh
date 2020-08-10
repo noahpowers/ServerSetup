@@ -14,16 +14,17 @@ fi
 function debian_initialize() {
     echo "Updating and Installing Dependicies"
     echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
+    echo "deb http://deb.debian.org/debian buster-backports main contrib non-free" > /etc/apt/sources.list.d/buster-backports.list
     apt-get -qq update > /dev/null 2>&1
     echo "...keep waiting..."
     apt-get -qq -y upgrade > /dev/null 2>&1
     echo -n "almost there..."
     apt-get install -qq -y nmap apache2 curl tcpdump > /dev/null 2>&1
-    apt-get install -qq -y procmail dnsutils screen zip ufw > /dev/null 2>&1
+    apt-get install -qq -y procmail dnsutils screen zip ufw network-manager resolvconf > /dev/null 2>&1
     echo -n "don't be impatient..."
     apt-get remove -qq -y exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
     rm -r /var/log/exim4/ > /dev/null 2>&1
-    apt install -qq -y linux-headers-$(uname -r) > /dev/null 2>&1
+    apt install -qq -y linux-headers-$(uname -r)
 
     update-rc.d nfs-common disable > /dev/null 2>&1
     update-rc.d rpcbind disable > /dev/null 2>&1
@@ -1201,7 +1202,8 @@ EOF
 
 function wireguard_install {
     apt update
-    apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools
+    apt -qq -y remove wireguard wireguard-tools wireguard-dkms
+    apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf
     apt upgrade -y
     apt dist-upgrade -y
 
@@ -1232,12 +1234,12 @@ function wireguard_install {
 
     originalDirectory=$(pwd)
 
-    if [ "$(ls -A /etc/wireguard)" ]; then
+    if [ "$(ls -A /etc/wireguard/)" ]; then
         rm /etc/wireguard/*
+        sleep 30
     else
         echo " "
     fi
-
 
     cd /etc/wireguard/
     umask 077
