@@ -15,14 +15,14 @@ function debian_initialize() {
     echo "Updating and Installing Dependicies"
     echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
     echo "deb http://deb.debian.org/debian buster-backports main contrib non-free" > /etc/apt/sources.list.d/buster-backports.list
-    apt-get -qq update > /dev/null 2>&1
+    apt -qq update > /dev/null 2>&1
     echo "...keep waiting..."
-    apt-get -qq -y upgrade > /dev/null 2>&1
+    apt -qq -y upgrade > /dev/null 2>&1
     echo -n "almost there..."
-    apt-get install -qq -y nmap apache2 curl tcpdump > /dev/null 2>&1
-    apt-get install -qq -y procmail dnsutils screen zip ufw network-manager resolvconf > /dev/null 2>&1
+    apt install -qq -y nmap apache2 curl tcpdump > /dev/null 2>&1
+    apt install -qq -y procmail dnsutils screen zip ufw network-manager resolvconf > /dev/null 2>&1
     echo -n "don't be impatient..."
-    apt-get remove -qq -y exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
+    apt remove -qq -y exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
     rm -r /var/log/exim4/ > /dev/null 2>&1
     command="linux-headers-$(uname -r)"
     apt install -qq -y $command
@@ -1206,12 +1206,14 @@ EOF
 function wireguard_install {
     apt update
     apt autoremove
+    command="linux-headers-$(uname -r)"
+    apt install -qq -y $command
     # apt -qq -y remove wireguard wireguard-tools wireguard-dkms
     if command -v wg-quick &> /dev/null;then 
         for net in $(ls /etc/wireguard/*.conf | cut -d "/" -f4 | cut -d"." -f1);do wg-quick down $net;done
         sleep 10
     else
-        apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf > /dev/null 2>&1
+        apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf
     # apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf
     fi
     apt upgrade -y > /dev/null 2>&1
