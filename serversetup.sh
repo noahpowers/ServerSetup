@@ -14,7 +14,7 @@ fi
 function debian_initialize() {
     echo "Updating and Installing Dependicies"
     echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
-    echo "deb http://deb.debian.org/debian buster-backports main contrib non-free" > /etc/apt/sources.list.d/buster-backports.list
+    # echo "deb http://deb.debian.org/debian buster-backports main contrib non-free" > /etc/apt/sources.list.d/buster-backports.list
     apt -qq update > /dev/null 2>&1
     echo "...keep waiting..."
     apt -qq -y upgrade > /dev/null 2>&1
@@ -24,8 +24,6 @@ function debian_initialize() {
     echo -n "don't be impatient..."
     apt remove -qq -y exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
     rm -r /var/log/exim4/ > /dev/null 2>&1
-    command="linux-headers-$(uname -r)"
-    apt install -qq -y $command
     apt update
     apt autoremove -y
 
@@ -1205,9 +1203,6 @@ EOF
 
 function wireguard_install {
     apt update
-    apt autoremove
-    command="linux-headers-$(uname -r)"
-    apt install -qq -y $command
     # apt -qq -y remove wireguard wireguard-tools wireguard-dkms
     if command -v wg-quick &> /dev/null;then 
         for net in $(ls /etc/wireguard/*.conf | cut -d "/" -f4 | cut -d"." -f1);do wg-quick down $net;done
