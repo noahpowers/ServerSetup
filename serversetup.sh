@@ -26,6 +26,8 @@ function debian_initialize() {
     rm -r /var/log/exim4/ > /dev/null 2>&1
     command="linux-headers-$(uname -r)"
     apt install -qq -y $command
+    apt update
+    apt autoremove -y
 
     update-rc.d nfs-common disable > /dev/null 2>&1
     update-rc.d rpcbind disable > /dev/null 2>&1
@@ -1203,6 +1205,7 @@ EOF
 
 function wireguard_install {
     apt update
+    apt autoremove
     # apt -qq -y remove wireguard wireguard-tools wireguard-dkms
     if command -v wg-quick &> /dev/null;then 
         for net in $(ls /etc/wireguard/*.conf | cut -d "/" -f4 | cut -d"." -f1);do wg-quick down $net;done
