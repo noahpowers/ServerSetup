@@ -1204,7 +1204,8 @@ function wireguard_install {
     apt update
     # apt -qq -y remove wireguard wireguard-tools wireguard-dkms
     if command -v wg-quick &> /dev/null;then 
-        for net in $(ls /etc/wireguard/*.conf | cut -d "/" -f4);do wg-quick down $net > /dev/null 2>&1;done
+        for net in $(ls /etc/wireguard/*.conf | cut -d "/" -f4);do wg-quick down $net
+        sleep 10
     else
         apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf > /dev/null 2>&1
     # apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf
@@ -1216,6 +1217,7 @@ function wireguard_install {
     read -p "Enter a number of VPN clients to allow [1-9]: " -r number
     if [[ $((number)) != $number ]]; then
         echo "Invalid entry. Try again!"
+        exit
     fi
 
     echo ""
@@ -1240,9 +1242,10 @@ function wireguard_install {
     originalDirectory=$(pwd)
 
     if [ "$(ls -A /etc/wireguard/)" ]; then
-        for file in $(ls /etc/wireguard/);do rm /etc/wireguard/$file;done
-        file=$(ls /etc/wireguard);echo $file
-        sleep 30
+        for file in $(ls /etc/wireguard/);do 
+            rm /etc/wireguard/$file
+        done
+        sleep 5
     else
         echo " "
     fi

@@ -90,5 +90,6 @@ Not sure why, but sometimes the server has troubles with what appears to be name
 ### My VPN won't work!..!
 First... use OS versions at/above Ubuntu 20 or Debian 10. The preference for ease of setup should be Ubuntu 20 for the VPN. If using a cloud-based image of Debian 10 here's what you'll need to do *prior* to installing the VPN: 
 1. update linux-headers // apt install linux-headers-$(uname -r)
-2. reboot server
-3. run option `16) Install VPN`
+1. apt remove wireguard*
+1. reboot server
+1. run option `16) Install VPN`
