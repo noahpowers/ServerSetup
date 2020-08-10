@@ -1204,7 +1204,7 @@ function wireguard_install {
     apt update
     # apt -qq -y remove wireguard wireguard-tools wireguard-dkms
     if command -v wg-quick &> /dev/null;then 
-        for net in $(ls /etc/wireguard/*.conf | cut -d "/" -f4);do wg-quick down $net;done
+        for net in $(ls /etc/wireguard/*.conf | cut -d "/" -f4 | cut -d"." -f1);do wg-quick down $net;done
         sleep 10
     else
         apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf > /dev/null 2>&1
