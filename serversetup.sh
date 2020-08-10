@@ -1208,6 +1208,7 @@ function wireguard_install {
     else
         apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf > /dev/null 2>&1
     # apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf
+    fi
     apt upgrade -y > /dev/null 2>&1
     apt dist-upgrade -y > /dev/null 2>&1
 
