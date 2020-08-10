@@ -1202,10 +1202,14 @@ EOF
 
 function wireguard_install {
     apt update
-    apt -qq -y remove wireguard wireguard-tools wireguard-dkms
-    apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf
-    apt upgrade -y
-    apt dist-upgrade -y
+    # apt -qq -y remove wireguard wireguard-tools wireguard-dkms
+    if command -v wg-quick &> /dev/null;then 
+        for net in $(ls /etc/wireguard/*.conf | cut -d "/" -f4);do wg-quick down $net > /dev/null 2>&1;done
+    else
+        apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf > /dev/null 2>&1
+    # apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf
+    apt upgrade -y > /dev/null 2>&1
+    apt dist-upgrade -y > /dev/null 2>&1
 
     ## Wireguard uses client config files. This tells how many config files to generate.
     read -p "Enter a number of VPN clients to allow [1-9]: " -r number
@@ -1235,7 +1239,8 @@ function wireguard_install {
     originalDirectory=$(pwd)
 
     if [ "$(ls -A /etc/wireguard/)" ]; then
-        rm /etc/wireguard/*
+        for file in $(ls /etc/wireguard/);do rm /etc/wireguard/$file;done
+        file=$(ls /etc/wireguard);echo $file
         sleep 30
     else
         echo " "
@@ -1312,6 +1317,9 @@ EOF
     cp jail.conf jail.local
     update-rc.d fail2ban enable
     cd $originalDirectory
+    echo ""
+    echo "[+] client config files located in:  /etc/wireguard/"
+    echo ""
 }
 
 cat <<-EOF
