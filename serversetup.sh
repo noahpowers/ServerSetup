@@ -23,6 +23,7 @@ function debian_initialize() {
     echo -n "don't be impatient..."
     apt-get remove -qq -y exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
     rm -r /var/log/exim4/ > /dev/null 2>&1
+    apt install -qq -y linux-headers-$(uname -r) > /dev/null 2>&1
 
     update-rc.d nfs-common disable > /dev/null 2>&1
     update-rc.d rpcbind disable > /dev/null 2>&1
@@ -1231,6 +1232,13 @@ function wireguard_install {
 
     originalDirectory=$(pwd)
 
+    if [ "$(ls -A /etc/wireguard)" ]; then
+        rm /etc/wireguard/*
+    else
+        echo " "
+    fi
+
+
     cd /etc/wireguard/
     umask 077
     wg genkey | tee privatekey-server | wg pubkey > publickey-server
@@ -1259,7 +1267,6 @@ EOF
 PrivateKey = $privKey
 Address = $ipAddress
 DNS = 1.1.1.1
-
 
 [Peer]
 PublicKey = $serverPublicKey
@@ -1295,6 +1302,7 @@ EOF
     echo 'net.ipv4.ip_forward = 1' > /etc/sysctl.d/99-sysctl.conf
     systemctl enable wg-quick@wg0
     wg-quick up wg0
+    echo ""
     wg show
 
     ## Setting-up Fail2Ban for protection
