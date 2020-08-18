@@ -1200,7 +1200,7 @@ EOF
 
 function wireguard_install {
     apt update
-    apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools
+    apt install -y wireguard wireguard-dkms wireguard-tools network-manager ufw fail2ban qrencode net-tools resolvconf
     apt upgrade -y
     apt dist-upgrade -y
 
