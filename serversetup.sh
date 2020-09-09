@@ -1049,7 +1049,7 @@ EOF
 
 function webmail_install() {
     service apache2 stop
-    apt install apache2 php7.0 libapache2-mod-php7.0 php7.0-curl php7.0-xml -y -qq
+    apt install apache2 php7.3 libapache2-mod-php7.3 php7.3-curl php7.3-xml -y -qq
     
     cd /etc/apache2/sites-enabled/
     a2dissite 000-default > /dev/null 2>&1
