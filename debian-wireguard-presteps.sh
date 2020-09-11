@@ -1,6 +1,6 @@
 #!/bin/bash
 ##
-## Debian 9/10 wireguard setup specific pre-steps...
+## Debian 10/11 wireguard setup specific pre-steps...
 ## 
 
 apt install network-manager resolvconf
