@@ -173,7 +173,8 @@ function install_ssl_Cert() {
         echo $'\nPlease be patient as we download any necessary files...'
         service apache2 stop
         apt-get update > /dev/null 2>&1
-        apt-get install -y python-certbot-apache -t stretch-backports > /dev/null 2>&1
+        #apt-get install -y python-certbot-apache -t stretch-backports > /dev/null 2>&1
+        apt-get install -y python-certbot-apache > /dev/null 2>&1
         git clone https://github.com/certbot/certbot.git /opt/letsencrypt > /dev/null 2>&1
     fi
 
@@ -192,7 +193,7 @@ function install_ssl_Cert() {
             echo $'\n'
             read -p "Enter your server's domain:  " -r domain
 
-            command="./certbot-auto certonly --manual --register-unsafely-without-email --agree-tos --preferred-challenges dns -d '${domain},*.${domain}'"
+            command="certbot certonly --manual --register-unsafely-without-email --agree-tos --preferred-challenges dns -d '${domain},*.${domain}'"
             eval $command
             printf 'y\n' | ufw enable > /dev/null 2>&1
         ;;
@@ -211,7 +212,7 @@ function install_ssl_Cert() {
                 fi
                 ((i++))
             done
-            command="./certbot-auto certonly --standalone "
+            command="certbot certonly --standalone "
             for i in "${letsencryptdomains[@]}";
                 do
                     command="$command -d $i"
