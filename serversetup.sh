@@ -319,24 +319,24 @@ EOF
     mkdir -p "/etc/opendkim/keys/${primary_domain}"
     cp /etc/opendkim.conf /etc/opendkim.conf.orig
 
-    cat <<-EOF > /etc/opendkim.conf
-    domain                              *
-    AutoRestart                     Yes
-    AutoRestartRate             10/1h
-    Umask                                   0002
-    Syslog                              Yes
-    SyslogSuccess                   Yes
-    LogWhy                              Yes
-    Canonicalization            relaxed/simple
-    ExternalIgnoreList      refile:/etc/opendkim/TrustedHosts
-    InternalHosts                   refile:/etc/opendkim/TrustedHosts
-    KeyFile                             /etc/opendkim/keys/${primary_domain}/mail.private
-    Selector                            mail
-    Mode                                    sv
-    PidFile                             /var/run/opendkim/opendkim.pid
-    SignatureAlgorithm      rsa-sha256
-    UserID                              opendkim:opendkim
-    Socket                              inet:12301@localhost
+    cat <<-EOF > /etc/opendkim.con
+domain                              *
+AutoRestart                     Yes
+AutoRestartRate             10/1h
+Umask                                   0002
+Syslog                              Yes
+SyslogSuccess                   Yes
+LogWhy                              Yes
+Canonicalization            relaxed/simple
+ExternalIgnoreList      refile:/etc/opendkim/TrustedHosts
+InternalHosts                   refile:/etc/opendkim/TrustedHosts
+KeyFile                             /etc/opendkim/keys/${primary_domain}/mail.private
+Selector                            mail
+Mode                                    sv
+PidFile                             /var/run/opendkim/opendkim.pid
+SignatureAlgorithm      rsa-sha256
+UserID                              opendkim:opendkim
+Socket                              inet:12301@localhost
 EOF
 
     cat <<-EOF > /etc/opendkim/TrustedHosts
