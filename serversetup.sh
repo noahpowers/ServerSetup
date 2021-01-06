@@ -317,6 +317,7 @@ EOF
     echo "Configuring Opendkim"
 
     mkdir -p "/etc/opendkim/keys/${primary_domain}"
+    mkdir -p "/etc/opendkim/debug"
     cp /etc/opendkim.conf /etc/opendkim.conf.orig
 
     cat <<-EOF > /etc/opendkim.con
