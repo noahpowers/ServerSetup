@@ -65,6 +65,14 @@ service apache2 start
 
 ### I configured my mail server, but DKIM fails and my messages go to JUNK...
 This is an expert question and one you'll get better at with your own research. All I can do is direct you to resources I find to be helpful.
+* Debugging Mode
+  * Edit /etc/opendkim.conf
+    * add the following, save the file, and restart opendkim service:
+    ```
+    KeepTemporaryFiles    Yes
+    TemporaryDirectory    /etc/opendkim/debug/
+    ```
+  * You can now see detailed failures and diagnose them
 * MXToolBox (https://mxtoolbox.com/)
   * checks everything mail server related, and more!
 * Mail Tester (https://www.mail-tester.com/)
