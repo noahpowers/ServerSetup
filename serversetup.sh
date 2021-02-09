@@ -320,7 +320,7 @@ EOF
     mkdir -p "/etc/opendkim/debug"
     cp /etc/opendkim.conf /etc/opendkim.conf.orig
 
-    cat <<-EOF > /etc/opendkim.con
+    cat <<-EOF > /etc/opendkim.conf
 domain                              *
 AutoRestart                     Yes
 AutoRestartRate             10/1h
