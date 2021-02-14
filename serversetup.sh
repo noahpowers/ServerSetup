@@ -395,17 +395,30 @@ passdb {
   driver = pam
 }
 
-protocols = " imap"
+protocols = "imap"
 
-protocol imap {
-  mail_plugins = " autocreate"
-}
+#protocol imap {
+#  mail_plugins = " autocreate"
+#}
+#
+#plugin {
+#  autocreate = Trash
+#  autocreate2 = Sent
+#  autosubscribe = Trash
+#  autosubscribe2 = Sent
+#}
 
-plugin {
-  autocreate = Trash
-  autocreate2 = Sent
-  autosubscribe = Trash
-  autosubscribe2 = Sent
+namespace inbox {
+  inbox = yes
+
+  mailbox Trash {
+    auto = subscribe
+    special_use = \Trash
+  }
+  mailbox Sent {
+    auto = subscribe
+    special_use = \Sent
+  }
 }
 
 service imap-login {
@@ -426,8 +439,8 @@ service auth {
 }
 
 ssl=required
-ssl_cert = </etc/letsencrypt/live/${primary_domain}/fullchain.pem
-ssl_key = </etc/letsencrypt/live/${primary_domain}/privkey.pem
+ssl_cert=</etc/letsencrypt/live/${primary_domain}/fullchain.pem
+ssl_key=</etc/letsencrypt/live/${primary_domain}/privkey.pem
 EOF
 
     cat <<-EOF > /etc/pam.d/imap
