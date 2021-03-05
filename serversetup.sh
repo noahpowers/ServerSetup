@@ -685,7 +685,9 @@ EOF
         answer=${answer:-n}
         case ${answer:0:1} in
             y|Y )
-                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=www&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=@&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=@&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60"
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=www&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=@&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=@&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60&HostName9=dns&RecordType9=A&Address9=${extip}&TTL9=300&&HostName10=ns1&RecordType10=NS&Address10=dns.${fulldomain}.&TTL10=300"
+                echo "Current NameCheap Records:"
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.getHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}"
                 cat dnsentries.txt
             ;;
             * )
@@ -740,7 +742,9 @@ EOF
         answer=${answer:-n}
         case ${answer:0:1} in
             y|Y )
-                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=${prefix}&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail.${prefix}&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=${prefix}&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=${prefix}&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey.${prefix}&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc.${prefix}&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60&HostName9=${namehost}&RecordType9=A&Address9=${extip}&TTL9=300"
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=www&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=@&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=@&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60&HostName9=dns&RecordType9=A&Address9=${extip}&TTL9=300&&HostName10=ns1&RecordType10=NS&Address10=dns.${fulldomain}.&TTL10=300"
+                echo "Current NameCheap Records:"
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.getHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}"
                 cat dnsentries.txt
             ;;
             * )
