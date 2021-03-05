@@ -2,7 +2,7 @@
 
 apikeyValue="<APIKEY>"
 usernameValue="<USERNAME>"
-updateIP="<EXT IPaddr>"
+updateIP=$(curl icanhazip.com)
 
 if [[ $EUID -ne 0 ]]; then
     echo "Please run this script as root" 1>&2
@@ -633,7 +633,7 @@ function httpsc2doneright(){
 }
 
 function get_dns_entries() {
-    extip=$(ip a |grep -E -iv '\slo|forever|eth0:1' | grep "inet" |cut -d" " -f6 |cut -d"/" -f1)
+    extip=$(curl icanhazip.com)
     domain=$(ls /etc/opendkim/keys/ | head -1)
     fields=$(echo "${domain}" | tr '.' '\n' | wc -l)
     dkimrecord=$(cut -d '"' -f 2 "/etc/opendkim/keys/${domain}/mail.txt" | tr -d "[:space:]")
