@@ -56,6 +56,11 @@ EOF
 127.0.0.1 localhost $primary_domain
 EOF
 
+    #Check to see if this is a Cloud instance and update manage_etc_hosts so it doesn't clobber our /etc/hosts changes
+    if test -f "/etc/cloud/cloud.cfg.d/01_debian_cloud.cfg"; then
+        sed -i 's/manage_etc_hosts: true/manage_etc_hosts: false/g' /etc/cloud/cloud.cfg.d/01_debian_cloud.cfg
+    fi
+
     cat <<-EOF > /etc/hostname
 $primary_hostname
 EOF
@@ -192,6 +197,16 @@ function install_ssl_Cert() {
             echo $'\n[!]\tJust enter your core domain name (e.g. github.com)'
             echo $'\n'
             read -p "Enter your server's domain:  " -r domain
+            read -p "Are you using the NameCheap API for DNS? (y/N)" answer
+            answer=${answer:-n}
+             case ${answer:0:1} in
+               y|Y )
+                  echo $'\nUse this reference API call to enter the upcoming certbot ACME challenges:'
+                  echo "curl \"https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=<SUBDOMAIN>&TLD=<TOP-LEVEL-DOMAIN>&HostName1=_acme-challenge&RecordType1=TXT&Address1=<CERTBOT-OUTPUT-1>&TTL1=300\""
+                  echo $'\n'
+            ;;
+             esac
+            
 
             command="certbot certonly --manual --register-unsafely-without-email --agree-tos --preferred-challenges dns -d '${domain},*.${domain}'"
             eval $command
