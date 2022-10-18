@@ -526,6 +526,8 @@ function always_https() {
 EOF
     echo "[ + ]  Writing SSL config file"
     cat <<-EOF > /etc/apache2/sites-available/default-ssl.conf
+<IfModule mod_ssl.c>
+SSLStaplingCache shmcb:/var/logs/apache2/ocsp(128000)
 <VirtualHost _default_:443>
     <Directory "/var/www/html">
     AllowOverride All
@@ -543,9 +545,12 @@ EOF
     DocumentRoot /var/www/html
     ErrorLog \${APACHE_LOG_DIR}/error.log
     CustomLog \${APACHE_LOG_DIR}/access.log combined
-    SSLEngine on
-    SSLProtocol +TLSv1.1 +TLSv1.2 -SSLv2 -SSLv3
-    SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH
+    SSLProtocol -TLSv1.1 +TLSv1.2 -SSLv2 -SSLv3
+    SSLCipherSuite EECDH+AESGCM:EDH+AESGCM:AES256+EECDH:AES256+EDH:HIGH:!aNULL:!MD5
+    SSLHonorCipherOrder on
+    SSLCompression off
+    SSLUseStapling on
+    SSLSessionTickets off
     SSLCertificateFile /etc/letsencrypt/live/${webaddr}/cert.pem
     SSLCertificateKeyFile /etc/letsencrypt/live/${webaddr}/privkey.pem
     SSLCertificateChainFile /etc/letsencrypt/live/${webaddr}/chain.pem
@@ -556,6 +561,7 @@ EOF
         SSLOptions +StdEnvVars
     </Directory>
 </VirtualHost>
+</IfModule>
 
 # vim: syntax=apache ts=4 sw=4 sts=4 sr noet
 EOF
