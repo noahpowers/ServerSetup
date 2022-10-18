@@ -13,7 +13,7 @@ fi
 
 function debian_initialize() {
     echo "Updating and Installing Dependicies"
-    echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
+#    echo "deb http://ftp.debian.org/debian stretch-backports main" >> /etc/apt/sources.list
     apt-get -qq update > /dev/null 2>&1
     echo "...keep waiting..."
     apt-get -qq -y upgrade > /dev/null 2>&1
