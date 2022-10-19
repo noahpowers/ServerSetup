@@ -1325,6 +1325,53 @@ EOF
     cd $originalDirectory
 }
 
+function obtain_dns_server() {
+    UserAgent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 OPR/90.0.4480.100" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.3 Safari/605.1.15" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.42" "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)" "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/104.2 Mobile/15E148 Safari/605.1.15" "Mozilla/5.0 (compatible; Qwantify/1.0; +https://www.qwant.com/)")
+    UserAgentString=${UserAgent[RANDOM%7]}
+
+    read -p "Do you want to randomize the country for privacy (y/N?)" answer
+    answer=${answer:-n}
+    case ${answer:0:1} in
+        y|Y )
+            countries=("ch" "no" "ro" "nl" "se" "is")
+            randomCountry=${countries[RANDOM%6]}
+    #        fetchString=$( curl -s -k -q -A ${UserAgentString} https://public-dns.info/nameserver/${randomCountry}.html | grep "9. %" -a8 | grep -E -iv '^\d|^<|^$|REL|valid|unbound|%|^-|^—|redhat|\w{4}' > 0.raw; curl -s -k -q -A ${UserAgentString} https://public-dns.info/nameserver/${randomCountry}.html | grep "100 %" -a8 | grep -E -iv '^\d|^<|^$|REL|valid|unbound|%|^-|^—|redhat|\w{4}' >> 0.raw )
+            fetchString=$( curl -s -k -q -A ${UserAgentString} curl -s -q -k https://public-dns.info/nameserver/${randomCountry}.json | jq -r '.[] | .ip' | grep -iv '^\w[4]' > 0.raw )
+        ;;
+        * )
+            # fetchString=$( curl -s -k -q -A ${UserAgentString} https://public-dns.info/nameserver/us.html | grep "9. %" -a8 | grep -E -iv '^\d|^<|^$|REL|valid|unbound|%|^-|^—|redhat|\w{4}' > 0.raw; curl -s -k -q -A ${UserAgentString} https://public-dns.info/nameserver/us.html | grep "100 %" -a8 | grep -E -iv '^\d|^<|^$|REL|valid|unbound|%|^-|^—|redhat|\w{4}' >> 0.raw )
+            fetchString=$( curl -s -k -q -A ${UserAgentString} curl -s -q -k https://public-dns.info/nameserver/us.json | jq -r '.[] | .ip' | grep -iv '^\w[4]' > 0.raw )
+
+    esac
+
+    # curl -s -k -q -A ${UserAgentString} https://public-dns.info/nameserver/us.html | grep "9. %" -a8 | grep -E -iv '^\d|^<|^$|REL|valid|unbound|%|^-|^—|redhat|\w{4}' > 0.raw
+    # curl -s -k -q -A ${UserAgentString} https://public-dns.info/nameserver/us.html | grep "100 %" -a8 | grep -E -iv '^\d|^<|^$|REL|valid|unbound|%|^-|^—|redhat|\w{4}' >> 0.raw
+    sort -u 0.raw > dns.raw
+    rm 0.raw
+
+    count=0
+    while [ ${count} -lt 1 ] 
+    do
+        lineNumber=$(wc -l dns.raw | cut -d" " -f1)
+        randomLine=$((1 + $RANDOM % ${lineNumber}))
+        dnsServer=$(sed -n ${randomLine}p dns.raw)
+        verify=$(dig @${dnsServer} +noall +answer +time=2 google.com A)
+        if [[ $verify == ";; connection timed out; no servers could be reached" ]]
+            then 
+            echo ""
+            echo "[-] DNS server wasn't working: ${dnsServer}"
+            echo "...obtaining new server..."
+            count=0
+            else
+            echo ""
+            echo "[+] Use the following DNS Server: ${dnsServer}"
+            ((count++))
+        fi
+    done
+
+    echo "";curl https://ipinfo.io/${dnsServer};echo $'\n\n'
+}
+
 cat <<-EOF
      __                          __      _               
     / _\ ___ _ ____   _____ _ __/ _\ ___| |_ _   _ _ __  
@@ -1336,7 +1383,7 @@ cat <<-EOF
 EOF
 
 PS3="Server Setup Script - Pick an option: "
-options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Setup WebDAV Share" "Install WebMail" "Roll da Domain" "Install VPN")
+options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Setup WebDAV Share" "Install WebMail" "Roll da Domain" "Install VPN" "Obtain DNS Server")
 select opt in "${options[@]}" "Quit"; do
 
     case "$REPLY" in
@@ -1373,6 +1420,8 @@ select opt in "${options[@]}" "Quit"; do
     15) roll_domain;;
 
     16) wireguard_install;;
+
+    17) obtain_dns_server;;
 
     $(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
     
