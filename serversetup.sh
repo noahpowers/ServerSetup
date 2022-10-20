@@ -4,6 +4,12 @@ apikeyValue="<APIKEY>"
 usernameValue="<USERNAME>"
 updateIP="<EXT IPaddr>"
 
+RED='\033[0;31m'
+LRED='\033[1;31m'
+GREEN='\033[0;32m'
+LGREEN='\033[1;31m'
+NC='\033[0m' # No Color
+
 if [[ $EUID -ne 0 ]]; then
     echo "Please run this script as root" 1>&2
     exit 1
@@ -1366,12 +1372,12 @@ function obtain_dns_server() {
         if [[ $verify == ";; connection timed out; no servers could be reached" ]]
             then 
             echo ""
-            echo "[-] DNS server wasn't working: ${dnsServer}"
-            echo "...obtaining new server..."
+            echo -e "${LRED}[-] DNS server wasn't working: ${dnsServer}"
+            echo $'\t...obtaining new server...'
             count=0
             else
             echo ""
-            echo "[+] Use the following DNS Server: ${dnsServer}"
+            echo -e "${GREEN}[+] Use the following DNS Server: ${NC}${dnsServer}"
             ((count++))
         fi
     done
