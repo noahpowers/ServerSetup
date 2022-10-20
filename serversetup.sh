@@ -1326,6 +1326,13 @@ EOF
 }
 
 function obtain_dns_server() {
+    checkCommand=$( dpkg --get-selections | grep -E -v "deinstall" |grep '^jq' )
+    stringarray=($checkCommand)
+    if [[ -z $stringarray ]]
+    then 
+        apt -y -qq install jq
+    fi
+
     UserAgent=("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/104.0.5112.102 Safari/537.36 OPR/90.0.4480.100" "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_14_3) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.0.3 Safari/605.1.15" "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/105.0.0.0 Safari/537.36 Edg/105.0.1343.42" "facebookexternalhit/1.1 (+http://www.facebook.com/externalhit_uatext.php)" "Mozilla/5.0 (iPhone; CPU iPhone OS 16_0 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) FxiOS/104.2 Mobile/15E148 Safari/605.1.15" "Mozilla/5.0 (compatible; Qwantify/1.0; +https://www.qwant.com/)" "Mozilla/5.0 (Linux; Android 10; JNY-LX1; HMSCore 6.6.0.352) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/92.0.4515.105 HuaweiBrowser/12.1.1.324 Mobile Safari/537.36" "BlackBerry8520/5.0.0.681 Profile/MIDP-2.1 Configuration/CLDC-1.1 VendorID/600" "Mozilla/5.0 (compatible; U; Haiku x86; en-US) AppleWebKit/536.10 (KHTML, like Gecko) Haiku/R1 WebPositive/1.1 Safari/536.10")
     UserAgentString=${UserAgent[RANDOM% ${#UserAgent[@]}]}
 
