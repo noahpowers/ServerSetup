@@ -979,6 +979,7 @@ function random_web_structure() {
     done
     
     # Original site for curl statement below: https://randomwordgenerator.com/json/sentences.json
+    # Alternate site: ` curl 'https://web.archive.org/web/20221027130921if_/https://contenttool.io/getSentencess' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' | jq '.[] | .text `
     curl -s -q -k 'https://web.archive.org/web/20221027120623if_/https://randomwordgenerator.com/json/sentences.json' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' | jq -r '.[] | .[].sentence' > sentences.raw
 
     ### Randomizing Directory Structure
@@ -1017,6 +1018,10 @@ function random_web_structure() {
     sentenceOne=$( cat sentences.raw | shuf -n 1 )
     sentenceTwo=$( cat sentences.raw | shuf -n 1 )
     sentenceThree=$( cat sentences.raw | shuf -n 1 )
+    
+    phraseOne=$( openssl rand -base64 30 )
+    phraseTwo=$( openssl rand -base64 30 )
+    phraseThree=$( openssl rand -base64 30 )
 
     cat <<-EOF > $dirOne
 <html>
@@ -1024,7 +1029,8 @@ function random_web_structure() {
     </head>
     <body>
         <$tagOne>$sentenceOne</$tagOne>
-    </body
+        <$tagTwo style="font-size: 1; color: white">$phraseOne</$tagTwo>
+    </body>
 </html>
 
 EOF
@@ -1035,7 +1041,8 @@ EOF
     </head>
     <body>
         <$tagTwo>$sentenceTwo</$tagTwo>
-    </body
+        <$tagThree style="font-size: 1; color: white">$phraseTwo</$tagThree>
+    </body>
 </html>
 
 EOF
@@ -1046,7 +1053,20 @@ EOF
     </head>
     <body>
         <$tagThree>$sentenceThree</$tagThree>
-    </body
+        <$tagTwo style="font-size: 1; color: white">$phraseThree</$tagTwo>
+    </body>
+</html>
+
+EOF
+
+    cat <<-EOF > $dirThree
+<html>
+    <head>
+    </head>
+    <body>
+        <$tagThree>$sentenceThree</$tagThree>
+        <$tagTwo style="font-size: 1; color: white">$phraseOne</$tagTwo>
+    </body>
 </html>
 
 EOF
