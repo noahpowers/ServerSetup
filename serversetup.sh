@@ -958,8 +958,11 @@ function random_web_structure() {
     then 
         apt -y -qq install jq
     fi
-
-    wordArray=( `curl -s -k 'https://randomwordgenerator.com/json/fake-words.json' -A "Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0" | jq -r '.[] | .[].word'` )
+    
+    # Original website used in the curl statement below: https://randomwordgenerator.com/json/fake-words.json
+    # Using a saved version of the page since 1) it works for the purpose, and 2) will remain if/when the site owners change their code
+    # Adding the `if_` at the end of the archive.org DTG loads the website iframe, which is the actual site. Turns out archive.org shows you a version of the page in an iframe...
+    wordArray=( `curl -s -k 'https://web.archive.org/web/20221026204413if_/https://randomwordgenerator.com/json/fake-words.json' -A "Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0" | jq -r '.[] | .[].word'` )
 
     chosenArray=()
 
@@ -974,8 +977,9 @@ function random_web_structure() {
             fi
         fi
     done
-
-    curl -s -q -k 'https://randomwordgenerator.com/json/sentences.json' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' | jq -r '.[] | .[].sentence' > sentences.raw
+    
+    # Original site for curl statement below: https://randomwordgenerator.com/json/sentences.json
+    curl -s -q -k 'https://web.archive.org/web/20221027120623if_/https://randomwordgenerator.com/json/sentences.json' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' | jq -r '.[] | .[].sentence' > sentences.raw
 
     ### Randomizing Directory Structure
     one=${chosenArray[RANDOM% ${#chosenArray[@]}]}
