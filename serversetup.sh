@@ -983,14 +983,16 @@ function random_web_structure() {
     curl -s -q -k 'https://web.archive.org/web/20221027120623if_/https://randomwordgenerator.com/json/sentences.json' -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' | jq -r '.[] | .[].sentence' > sentences.raw
 
     ### Randomizing Directory Structure
+    ### "one/two/three" is all lowercase
+    ### "fetch#" is randomized capitalization
     one=${chosenArray[RANDOM% ${#chosenArray[@]}]}
-    fetchOne=$( curl -s -k -q 'http://www.unit-conversion.info/texttools/randomcase/?ajax=1' -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' --data-raw "form%5Btext%5D=${one}&out=" )
+#    fetchOne=$( curl -s -k -q 'http://www.unit-conversion.info/texttools/randomcase/?ajax=1' -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' --data-raw "form%5Btext%5D=${one}&out=" )
 
     two=${chosenArray[RANDOM% ${#chosenArray[@]}]}
-    fetchTwo=$( curl -s -k -q 'http://www.unit-conversion.info/texttools/randomcase/?ajax=1' -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' --data-raw "form%5Btext%5D=${two}&out=" )
+#    fetchTwo=$( curl -s -k -q 'http://www.unit-conversion.info/texttools/randomcase/?ajax=1' -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' --data-raw "form%5Btext%5D=${two}&out=" )
 
     three=${chosenArray[RANDOM% ${#chosenArray[@]}]}
-    fetchThree=$( curl -s -k -q 'http://www.unit-conversion.info/texttools/randomcase/?ajax=1' -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' --data-raw "form%5Btext%5D=${three}&out=" )
+#    fetchThree=$( curl -s -k -q 'http://www.unit-conversion.info/texttools/randomcase/?ajax=1' -X POST -H 'User-Agent: Mozilla/5.0 (Windows NT 10.0; rv:106.0) Gecko/20100101 Firefox/106.0' --data-raw "form%5Btext%5D=${three}&out=" )
 
     webDir=""
 
@@ -999,18 +1001,19 @@ function random_web_structure() {
     elif [[ -d "/var/www/" ]]; then
         webDir="/var/www";
     fi
-
-    newDirStructure="${webDir}/${fetchOne}/${fetchTwo}/${fetchThree}"
+    
+    ### replace "one/two/three" with "fetch#" and uncomment lines above to enable random cApS
+    newDirStructure="${webDir}/${one}/${two}/${three}"
 
     mkdir -p $newDirStructure
 
     ### Creating index.html and randomizing contents within the file
 
-    dirOne="${webDir}/${fetchOne}/index.html"
-    dirTwo="${webDir}/${fetchOne}/${fetchTwo}/index.html"
-    dirThree="${webDir}/${fetchOne}/${fetchTwo}/${fetchThree}/index.html"
+    dirOne="${webDir}/${one}/index.html"
+    dirTwo="${webDir}/${one}/${two}/index.html"
+    dirThree="${webDir}/${one}/${two}/${three}/index.html"
 
-    tagArray=("p" "b" "h1" "h2" "h3" "h4" "h5" "pre" "hr")
+    tagArray=("p" "b" "h1" "h2" "h3" "h4" "h5" "pre")
     tagOne=${tagArray[RANDOM% ${#tagArray[@]}]}
     tagTwo=${tagArray[RANDOM% ${#tagArray[@]}]}
     tagThree=${tagArray[RANDOM% ${#tagArray[@]}]}
@@ -1019,9 +1022,9 @@ function random_web_structure() {
     sentenceTwo=$( cat sentences.raw | shuf -n 1 )
     sentenceThree=$( cat sentences.raw | shuf -n 1 )
     
-    phraseOne=$( openssl rand -base64 30 )
-    phraseTwo=$( openssl rand -base64 30 )
-    phraseThree=$( openssl rand -base64 30 )
+    phraseOne=$( openssl rand -base64 $(shuf -i 1-60 -n1) | tr -d = | tr -d + | tr -d / )
+    phraseTwo=$( openssl rand -base64 $(shuf -i 1-60 -n1) | tr -d = | tr -d + | tr -d / )
+    phraseThree=$( openssl rand -base64 $(shuf -i 1-60 -n1) | tr -d = | tr -d + | tr -d / )
 
     cat <<-EOF > $dirOne
 <html>
