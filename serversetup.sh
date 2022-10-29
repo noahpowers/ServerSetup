@@ -1053,7 +1053,7 @@ EOF
     </head>
     <body>
         <$tagThree>$sentenceThree</$tagThree>
-        <$tagTwo style="font-size: 1; color: white">$phraseThree</$tagTwo>
+        <$tagOne style="font-size: 1; color: white">$phraseThree</$tagOne>
     </body>
 </html>
 
