@@ -161,7 +161,7 @@ function install_ssl_Cert() {
         service apache2 stop
         apt-get update > /dev/null 2>&1
         #apt-get install -y python-certbot-apache -t stretch-backports > /dev/null 2>&1
-        apt-get install -y python-certbot-apache > /dev/null 2>&1
+        apt-get install -y python3-certbot-apache > /dev/null 2>&1
         git clone https://github.com/certbot/certbot.git /opt/letsencrypt > /dev/null 2>&1
     fi
 
