@@ -2,7 +2,7 @@
 
 apikeyValue="<APIKEY>"
 usernameValue="<USERNAME>"
-updateIP="<EXT IPaddr>"
+updateIP=$(curl icanhazip.com)
 
 RED='\033[0;31m'
 LRED='\033[1;31m'
@@ -61,6 +61,11 @@ EOF
 127.0.1.1 $primary_hostname $primary_domain
 127.0.0.1 localhost $primary_domain
 EOF
+
+    #Check to see if this is a Cloud instance and update manage_etc_hosts so it doesn't clobber our /etc/hosts changes
+    if test -f "/etc/cloud/cloud.cfg.d/01_debian_cloud.cfg"; then
+        sed -i 's/manage_etc_hosts: true/manage_etc_hosts: false/g' /etc/cloud/cloud.cfg.d/01_debian_cloud.cfg
+    fi
 
     cat <<-EOF > /etc/hostname
 $primary_hostname
@@ -179,6 +184,16 @@ function install_ssl_Cert() {
             echo $'\n[!]\tJust enter your core domain name (e.g. github.com)'
             echo $'\n'
             read -p "Enter your server's domain:  " -r domain
+            read -p "Are you using the NameCheap API for DNS? (y/N)" answer
+            answer=${answer:-n}
+             case ${answer:0:1} in
+               y|Y )
+                  echo $'\nUse this reference API call to enter the upcoming certbot ACME challenges:'
+                  echo "curl \"https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=<SUBDOMAIN>&TLD=<TOP-LEVEL-DOMAIN>&HostName1=_acme-challenge&RecordType1=TXT&Address1=<CERTBOT-OUTPUT-1>&TTL1=300\""
+                  echo $'\n'
+            ;;
+             esac
+            
 
             command="certbot certonly --manual --register-unsafely-without-email --agree-tos --preferred-challenges dns -d '${domain},*.${domain}'"
             eval $command
@@ -626,7 +641,7 @@ function httpsc2doneright(){
 }
 
 function get_dns_entries() {
-    extip=$(ip a |grep -E -iv '\slo|forever|eth0:1' | grep "inet" |cut -d" " -f6 |cut -d"/" -f1)
+    extip=$(curl icanhazip.com)
     domain=$(ls /etc/opendkim/keys/ | head -1)
     fields=$(echo "${domain}" | tr '.' '\n' | wc -l)
     dkimrecord=$(cut -d '"' -f 2 "/etc/opendkim/keys/${domain}/mail.txt" | tr -d "[:space:]")
@@ -678,7 +693,9 @@ EOF
         answer=${answer:-n}
         case ${answer:0:1} in
             y|Y )
-                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=www&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=@&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=@&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60"
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=www&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=@&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=@&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60&HostName9=dns&RecordType9=A&Address9=${extip}&TTL9=300&&HostName10=ns1&RecordType10=NS&Address10=dns.${fulldomain}.&TTL10=300"
+                echo "Current NameCheap Records:"
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.getHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}"
                 cat dnsentries.txt
             ;;
             * )
@@ -733,7 +750,9 @@ EOF
         answer=${answer:-n}
         case ${answer:0:1} in
             y|Y )
-                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=${prefix}&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail.${prefix}&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=${prefix}&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=${prefix}&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey.${prefix}&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc.${prefix}&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60&HostName9=${namehost}&RecordType9=A&Address9=${extip}&TTL9=300"
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.setHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}&HostName1=@&RecordType1=A&Address1=${extip}&TTL1=300&HostName2=www&RecordType2=A&Address2=${extip}&TTL2=300&HostName3=mail&RecordType3=A&Address3=${extip}&TTL3=300&HostName4=@&RecordType4=MX&Address4=${fulldomain}&TTL4=300&MXPref4=10&EmailType=MX&HostName5=@&RecordType5=TXT&Address5=v=spf1+ip4:${extip}%20-all&TTL5=300&HostName6=mail._domainkey&RecordType6=TXT&Address6=${dkim2}&TTL6=300&HostName7=._dmarc&RecordType7=TXT&Address7=${dmarcTemp1}&TTL7=300&HostName8=temp&RecordType8=A&Address8=${extip}&TTL8=60&HostName9=dns&RecordType9=A&Address9=${extip}&TTL9=300&&HostName10=ns1&RecordType10=NS&Address10=dns.${fulldomain}.&TTL10=300"
+                echo "Current NameCheap Records:"
+                curl -v "https://api.namecheap.com/xml.response?ApiUser=${usernameValue}&ApiKey=${apikeyValue}&UserName=${usernameValue}&Command=namecheap.domains.dns.getHosts&ClientIp=${updateIP}&SLD=${dName}&TLD=${toplevel}"
                 cat dnsentries.txt
             ;;
             * )
